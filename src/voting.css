@@ -1,0 +1,106 @@
+.voting-app {
+    display: flex;
+}
+.voting-app aside {
+    width: 25%;
+    height: 100%;
+}
+.voting-app > main {
+    width: 75%;
+    height: 100%;
+}
+.sb-main {
+    border-right: 1px solid var(--bordergrey);
+}
+.voting-app-wrapper, .voting-app-wrapper > div {
+    width: 100%;
+    height: 100%;
+}
+div .sidebar, .sidebar > div, .sb-main > div {
+    width: 100%;
+}
+div .sidebar {
+    height: 100%;
+}
+.sidebar .sb-main {
+    height: calc(100% - 56px);
+    padding-top: 10px;
+}
+.sb-header, .sb-main-li {
+    display: flex;
+    align-items: center;
+}
+.sb-header {
+    justify-content: flex-start;
+    padding: 10px;
+    height: 55.8px;
+    border-bottom: 1px solid var(--bordergrey);
+}
+.sb-icon {
+    display: none;
+    height: 19px;
+    width: 19px;
+}
+.sb-header h4 {
+    margin-left: 9px;
+    font-size: 20px;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+}
+.sb-main-li {
+    padding: 10px;
+}
+.sb-main-li.true {
+    background-color: #f5f5f5;
+}
+.sb-main-li .sb-icon {
+    width: 20px;
+    height: 20px;
+    color: #636363;
+}
+.sb-main-li.true .sb-main-txt {
+    font-weight: 500;
+}
+.sb-main-txt {
+    font-size: 14px;
+    margin-left: 15px;
+}
+
+@media screen and (max-width: 1024px) {
+    .voting-app aside {
+        width: 35%;
+        height: 100%;
+    }
+    .voting-app > main {
+        width: 65%;
+        height: 100%;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .sb-icon {
+        display: block;
+    }
+    .sb-header h4 {
+        margin-left: 9px;
+        font-size: 18px;
+    }
+    .voting-app aside {
+        width: 100%;
+        position: fixed;
+        z-index: 999;
+        height: 100%;
+    }
+    .voting-side.false {
+        display: none;
+    }
+    .voting-side.true {
+        display: block;
+        background-color: var(--white);
+    }
+    .voting-app > main {
+        width: 100%;
+        height: 100%;
+    }
+}

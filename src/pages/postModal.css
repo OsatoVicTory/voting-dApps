@@ -1,0 +1,112 @@
+.postModal {
+    width: 0px;
+    height: 0px;
+    top: 0px;
+    left: 0px;
+    position: fixed;
+    z-index: 99999999;
+    background-color: rgba(27, 27, 27, 0.9);
+    justify-content: center;
+}
+.postModal.true {
+    width: 100%;
+    height: 100%;
+    animation: animateIn 0.3s ease-in-out;
+}
+.postModal.false {
+    animation: animateOut 0.3s ease-in-out;
+}
+@keyframes animateIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+@keyframes animateOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+.postModal, .pMc-top, .pMc-base, .pMc-send {
+    display: flex;
+    align-items: center;
+}
+.postModal .pM-content {
+    background-color: var(--white);
+    width: min(100%, 500px);
+    height: max-content;
+    max-height: 100%;
+    border-radius: 20px;
+}
+.pM-content > div {
+    width: 100%;
+    padding: 12px 15px;
+}
+.pMc-top {
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid var(--bordergrey);
+}
+.pMct-txt {
+    font-weight: 600;
+    font-size: 16px;
+}
+.pMc-mid textarea {
+    width: 100%;
+    outline: none;
+    border: 1px solid #d2d4d9;
+    background: none;
+    color: var(--grey);
+    font-size: 14px;
+    padding: 8px;
+    border-radius: 12px;
+    min-height: 120px;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+    text-decoration: none;
+    font-family: inherit;
+    resize: none;
+}
+.pMc-mid textarea::placeholder {
+    color: var(--grey);
+    font-size: 14px;
+}
+.pMc-base {
+    justify-content: flex-end;
+    padding: 10px;
+    border-top: 1px solid var(--bordergrey);
+}
+.pMc-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--grey);
+}
+.pMc-send {
+    width: max-content;
+    padding: 10px 20px;
+    border-radius: 12px;
+    background-color: var(--bgblue);
+}
+.pMcs-icon {
+    width: 15px;
+    height: 16px;
+    color: var(--white);
+}
+.pMcs-txt {
+    color: var(--white);
+    font-size: 15px;
+    font-weight: 500;
+    margin-left: 6px;
+}
+@media screen and (max-width: 500px) {
+    .postModal .pM-content {
+        width: 100%;
+        height: 100%;
+        border-radius: 0px;
+    }
+}
