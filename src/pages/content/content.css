@@ -73,6 +73,9 @@ div .pc-main {
 .pc-details {
     display: flex;
 }
+.down-vote {
+    margin-left: 15px;
+}
 .pd-img {
     width: 45px;
     height: 45px;
@@ -93,8 +96,10 @@ div .pc-main {
     font-size: 11px;
     margin-top: 3px;
 }
-
-@media screen and (max-width: 500px) { 
+.pc-voting {
+    display: flex;
+}
+@media screen and (max-width: 770px) { 
     .pcv {
         padding: 8px 15px;
         border-radius: 30px;

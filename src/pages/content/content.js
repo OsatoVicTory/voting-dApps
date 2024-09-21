@@ -1,15 +1,21 @@
 import { useState } from 'react';
 import './content.css';
-import { BiUpvote, BiSolidUpvote } from 'react-icons/bi';
+import { BiUpvote, BiSolidUpvote, BiSolidDownvote, BiDownvote } from 'react-icons/bi';
 import { AiOutlineClose } from 'react-icons/ai';
 import { useNavigate } from 'react-router-dom';
+import StakeContentModal from './stakeModal';
 
-const Content = ({ closeContent }) => {
+const Content = () => {
 
     const groupings = ['string', 'powershell', 'web3', 'ethereum'];
-    const [voted, setVoted] = useState(false); 
+    const [voted, setVoted] = useState(''); 
+    const [modal, setModal] = useState('');
     const navigate = useNavigate();
-    function clickFn() { setVoted(!voted); };
+    function clickFn(type) { 
+        setModal(type);
+        setVoted(type); 
+    };
+    function closeModal() { setModal(''); }
 
     return (
         <div className="post-content">
@@ -27,8 +33,12 @@ const Content = ({ closeContent }) => {
                 </div>
                 <div className='pc-base'>
                     <div className="pc-voting">
-                        <div className="pcv cursor" onClick={()=>clickFn()}>
-                            {voted ? <BiSolidUpvote className="pcv-icon" /> : <BiUpvote className="pcv-icon" />}
+                        <div className="pcv cursor" onClick={()=>clickFn('up')}>
+                            {voted === 'up' ? <BiSolidUpvote className="pcv-icon" /> : <BiUpvote className="pcv-icon" />}
+                            <span className="pcv-txt">20</span>
+                        </div>
+                        <div className="pcv cursor down-vote" onClick={()=>clickFn('down')}>
+                            {voted === 'down' ? <BiSolidDownvote className="pcv-icon" /> : <BiDownvote className="pcv-icon" />}
                             <span className="pcv-txt">20</span>
                         </div>
                     </div>
@@ -41,6 +51,8 @@ const Content = ({ closeContent }) => {
                     </div>
                 </div>
             </div>
+            
+            {modal && <StakeContentModal closeModal={closeModal} voteType={voted} />}
         </div>
     );
 };

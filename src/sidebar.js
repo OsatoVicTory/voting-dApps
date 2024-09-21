@@ -9,11 +9,12 @@ const Sidebar = ({ toggleSidebar, setShowSidebar }) => {
     const [route, setRoute] = useState('/');
     const navigate = useNavigate();
     const path = useLocation().pathname;
-    const fn = (val) => { navigate(`/${val}`); };
+    const fn = (val) => { navigate(`/app/${val}`); };
 
     useEffect(() => {
         if(path.includes('wallet')) setRoute('wallet');
         else if(path.includes('profile')) setRoute('profile');
+        else if(path.includes('community')) setRoute('community');
         else setRoute('/');
 
         setShowSidebar(false);
@@ -38,6 +39,10 @@ const Sidebar = ({ toggleSidebar, setShowSidebar }) => {
                 <div className={`sb-main-li cursor ${route==='profile'}`} onClick={()=>fn('profile')}>
                     <MdAccountCircle className='sb-icon' />
                     <span className='sb-main-txt'>Profile</span>
+                </div>
+                <div className={`sb-main-li cursor ${route==='community'}`} onClick={()=>fn('community')}>
+                    <MdAccountCircle className='sb-icon' />
+                    <span className='sb-main-txt'>Community</span>
                 </div>
             </div>
         </div>

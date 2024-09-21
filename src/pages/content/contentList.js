@@ -19,7 +19,7 @@ const Contentlist = ({ openModal }) => {
                         <span className='pl-txt'>John Doe</span>
                         <span className='post-time'>posted 10 min ago</span>
                     </div>
-                    <div className='pl-mid cursor' onClick={()=>navigate(`/post/123456789`)}>
+                    <div className='pl-mid cursor' onClick={()=>navigate(`/app/post/123456789`)}>
                         The balance of my wallet is enough for gas fee and more transactions on the blockchain
                     </div>
                     <div className='pl-base'>

@@ -4,7 +4,7 @@ import { AiOutlineSearch } from 'react-icons/ai';
 import { MdAccountBalanceWallet } from 'react-icons/md';
 import './contentList.css';
 import Content from './content';
-import Contentlist from './content_list';
+import Contentlist from './contentList';
 import PostModal from './postModal';
 import { GiHamburgerMenu } from 'react-icons/gi';
 

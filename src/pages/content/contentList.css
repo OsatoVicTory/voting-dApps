@@ -177,7 +177,7 @@ div .content-list {
     font-size: 14px;
 }
 
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 770px) {
     .pl-group {
         padding: 4px 8px;
         font-size: 12px;

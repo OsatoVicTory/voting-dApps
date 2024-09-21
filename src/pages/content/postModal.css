@@ -1,0 +1,314 @@
+.postModal, .stakeContentModal {
+    width: 0px;
+    height: 0px;
+    top: 0px;
+    left: 0px;
+    position: fixed;
+    z-index: 99999999;
+    background-color: rgba(27, 27, 27, 0.9);
+    justify-content: center;
+}
+.stakeContentModal {
+    width: 100%;
+    height: 100%;
+}
+.postModal.true {
+    width: 100%;
+    height: 100%;
+    animation: animateIn 0.3s ease-in-out;
+}
+.postModal.false {
+    animation: animateOut 0.3s ease-in-out;
+}
+div input {
+    font-family: inherit;
+}
+@keyframes animateIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+@keyframes animateOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+.postModal, .pMc-top, .pMc-base, .pMc-send,
+.pMcd-selected > div, .pmdc-li, .stakeContentModal {
+    display: flex;
+    align-items: center;
+}
+.scm-content {
+    width: min(100%, 450px);
+    background-color: var(--white);
+    height: max-content;
+    max-height: 100%;
+    border-radius: 20px;
+}
+.scm-content > div {
+    padding: 15px;
+}
+.scm-header {
+    padding: 10px 15px !important;
+    width: 100%;
+}
+.postModal .pM-content {
+    background-color: var(--white);
+    width: min(100%, 600px);
+    height: max-content;
+    max-height: 100%;
+    border-radius: 20px;
+    overflow-y: auto;
+}
+.pM-content > div {
+    width: 100%;
+    padding: 12px 15px;
+}
+.pMc-top {
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid var(--bordergrey);
+}
+.pMct-txt {
+    font-weight: 600;
+    font-size: 16px;
+}
+.pMc-mid > div {
+    width: 100%;
+    margin-top: 12px;
+}
+.pMc-field label {
+    font-size: 15px;
+}
+.pMc-field input, .text-area, .pMc-selected, .pMc-field textarea {
+    border-radius: 6px;
+}
+.pMc-field input, .pMc-field textarea {
+    width: 100%;
+    padding: 10px;
+    color: var(--grey);
+    outline: none;
+    background: none;
+    font-size: 14px;
+    border: 1px solid var(--bordergrey);
+    margin-top: 12px;
+}
+.pMc-field input::placeholder, .pMc-field textarea::placeholder {
+    color: var(--grey);
+}
+.pMc-field input:focus, .pMc-field textarea:focus, .text-area-content:focus, .pMc-selected:focus {
+    border: 1px solid var(--grey);
+}
+.pMc-field > div {
+    width: 100%;
+    margin-top: 12px;
+}
+.pMc-select {
+    position: relative;
+}
+.pMc-selected {
+    padding: 10px;
+    border: 1px solid var(--bordergrey);
+    color: var(--grey);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.pMc-dropdown-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--grey);
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    transform: rotate(0deg);
+}
+.pMc-dropdown-icon.true {
+    transform: rotate(180deg);
+}
+.pMc-options {
+    width: 100%;
+    position: absolute;
+    top: 45px;
+    left: 0px;
+    z-index: 10;
+    height: 150px;
+    box-shadow: var(--boxshadow);
+    background-color: var(--white);
+    padding: 3px;
+    border-radius: 10px;
+}
+.pMc-options_ {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+}
+.pMc-option {
+    width: 100%;
+    padding: 10px;
+    cursor: pointer;
+    color: var(--grey);
+    font-size: 14px;
+}
+.pMc-option:hover {
+    background-color: var(--bordergrey);
+}
+.pMc-field textarea {
+    width: 100%;
+    resize: none;
+    height: 150px;
+    font-family: inherit;
+}
+.text-area {
+    position: relative;
+    height: max-content;
+}
+.text-area-content {
+    width: 100%;
+    height: 150px;
+    padding: 10px;
+    border: 1px solid var(--bordergrey);
+    border-radius: 6px;
+    overflow-y: auto;
+    outline: none;
+    color: var(--grey);
+    caret-color: var(--grey);
+}
+.text-area-placeholder {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 14px;
+    color: var(--grey);
+}
+.text-area-placeholder.false {
+    display: none;
+}
+.pMc-base {
+    justify-content: flex-end;
+    padding: 10px;
+    border-top: 1px solid var(--bordergrey);
+    margin-top: 12px;
+}
+.pMc-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--grey);
+}
+.pMc-send {
+    width: max-content;
+    padding: 10px 20px;
+    border-radius: 12px;
+    background-color: var(--bgblue);
+}
+.pMcs-icon {
+    width: 15px;
+    height: 16px;
+    color: var(--white);
+}
+.pMcs-txt {
+    color: var(--white);
+    font-size: 15px;
+    font-weight: 500;
+    margin-left: 6px;
+}
+
+.pMc-dest {
+    width: min(100%, 300px);
+    position: relative;
+}
+.pMc-dest > div, .pMcd-selected > div,
+.pmcd-dr-lists > div {
+    width: 100%;
+}
+.pMcd-selected > div {
+    justify-content: space-between;
+}
+.pMcd-selected {
+    background-color: #f5f5f5;
+    border-radius: 15px;
+    padding: 10px;
+    width: 200px;
+}
+.pMcds-img  {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: var(--grey);
+}
+.pMcd-selected > div span {
+    font-size: 14px;
+    flex: 3;
+    display: flex;
+    margin-left: 8px;
+    font-weight: 500;
+    color: var(--grey);
+}
+.pMcds-icon {
+    width: 20px;
+    height: 20px;
+    color: var(--grey);
+}
+.pMcd-s-search input {
+    width: calc(100% - 24px);
+    padding: 2px;
+    background: none;
+    outline: none;
+    border: none;
+    font-size: 14px;
+}
+
+.pMcd-dropdown {
+    width: 100%;
+    height: 200px;
+    border-radius: 10px;
+    position: absolute;
+    top: 50px;
+    left: 0px;
+    z-index: 999;
+    background-color: var(--white);
+    overflow: hidden;
+    padding: 5px;
+    box-shadow: var(--boxshadow);
+}
+.pmcd-dr-lists {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+}
+.pmcd-subheading {
+    padding: 6px 8px;
+    font-size: 13.5px;
+    font-weight: 500;
+}
+.pmdc-li {
+    width: 100%;
+    padding: 8px;
+    cursor: pointer;
+}
+.pmdc-li:hover {
+    background-color: #f5f5f5;
+}
+.pmdcl-img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: var(--grey);
+}
+.pmdcl-txt {
+    margin-left: 10px;
+    font-size: 13.5px;
+}
+@media screen and (max-width: 500px) {
+    .postModal .pM-content {
+        width: 100%;
+        height: 100%;
+        border-radius: 0px;
+    }
+}
