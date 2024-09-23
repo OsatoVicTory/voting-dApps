@@ -135,6 +135,10 @@ div .content-list {
     height: 15px;
     background-color: var(--bgblue);
 }
+.pl-img img, .pl-img > div {
+    width: 100%;
+    height: 100%;
+}
 .pl-txt {
     margin-left: 5px;
     font-size: 14.5px;
@@ -144,6 +148,10 @@ div .content-list {
     font-size: 13px;
     margin-left: 5px;
 }
+.pl-loading {
+    width: 100px;
+    height: 16px;
+}
 .pl-mid {
     color: var(--bgblue);
     font-size: 16px;
@@ -152,12 +160,24 @@ div .content-list {
     line-height: 1.2rem;
     margin-top: 7px;
 }
+.plm-loading {
+    width: 100%;
+    height: 40px;
+}
 .pl-base {
     margin-top: 15px;
 }
 .pl-groupings {
     display: flex;
     width: calc(100% - 50px);
+}
+.plg-loading {
+    width: 120px;
+    height: 21px;
+}
+.plv-loading {
+    width: 90px;
+    height: 21px;
 }
 .pl-group {
     padding: 6px 10px;

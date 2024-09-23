@@ -51,6 +51,8 @@ const Content = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Add loading spinner here if we want to add a div to fetch users that staked/voted on this post */}
             
             {modal && <StakeContentModal closeModal={closeModal} voteType={voted} />}
         </div>

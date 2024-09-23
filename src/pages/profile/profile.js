@@ -1,10 +1,30 @@
+import { useEffect, useState } from "react";
 import { BiSolidCommentDetail } from "react-icons/bi";
 import { FaArrowUpLong } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
+import ProfileLoading from "./loading";
+import NoData from "../../component/nodata";
+
+import { useSelector, useDispatch } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { setUser } from '../../store/user';
+
 
 const ProfileHome = () => {
 
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
+    const [noData, setNoData] = useState(false);
+    const user = useSelector(state => state.user);
+    const contract = useSelector(state => state.contract);
+
+    const dispatch = useDispatch();
+    const setUserData = bindActionCreators(setUser, dispatch);
+
+    useEffect(() => {
+        setTimeout(() => { setLoading(false); }, 5000);
+    }, []);
+
     const posts = new Array(20).fill({ title: 'Image rotation in pillow', date: 'Dec 30, 2015' });
 
     return (
@@ -52,19 +72,24 @@ const ProfileHome = () => {
             </div>
             <div className='profile-posts'>
                 <h4>Top Posts</h4>
-                <ul className='p-posts'>
-                    {posts.map((val, idx) => (
-                        <li key={`posts-${idx}`} className='p-posts-li'>
-                            <BiSolidCommentDetail className='pp-icon' />
-                            <div className='p-posts-upvotes'>
-                                <FaArrowUpLong className='ppu-icon' /> 
-                                <span className='ppu-cnt'>3</span>
-                            </div>
-                            <div className='pp-title cursor'>{val.title}</div>
-                            <div className='pp-date'>{val.date}</div>
-                        </li>
-                    ))}
-                </ul>
+                {noData ?
+                    <NoData text={'No recent post from you'} /> :
+                    loading ?
+                        <ProfileLoading /> :
+                        <ul className='p-posts'>
+                            {posts.map((val, idx) => (
+                                <li key={`posts-${idx}`} className='p-posts-li'>
+                                    <BiSolidCommentDetail className='pp-icon' />
+                                    <div className='p-posts-upvotes'>
+                                        <FaArrowUpLong className='ppu-icon' /> 
+                                        <span className='ppu-cnt'>3</span>
+                                    </div>
+                                    <div className='pp-title cursor'>{val.title}</div>
+                                    <div className='pp-date'>{val.date}</div>
+                                </li>
+                            ))}
+                        </ul>
+                }
             </div>
         </div>
     );

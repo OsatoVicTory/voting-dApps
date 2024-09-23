@@ -1,19 +1,26 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaPlus } from 'react-icons/fa6';
 import './community.css';
 import { BiDownvote, BiUpvote } from 'react-icons/bi';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import PostModal from '../content/postModal';
+import SkeletonLoader from '../../component/skeleton';
+import CommunityLoading from './loading';
 
 const CommunityPage = ({ toggleSidebar }) => {
 
     const [route, setRoute] = useState('Feed');
     const [modal, setModal] = useState(false);
+    const [loading, setLoading] = useState(true);
     const communityName = 'Ethereum';
     const topics = ['Web3', 'Ethereum', 'Arbitrum', 'Sepolia', 'Crypto', 'Funny', 'Metamask'];
     const admins = ['osato', 'victory', 'victor', 'vitalicadruskypondoruv', ...Array(6).fill('anthony_durovic')];
     const feeds = admins;
     function closeModal() { setModal(false); }
+
+    useEffect(() => {
+        setTimeout(() => { setLoading(false); }, 5000);
+    }, []);
 
     return (
         <div className='community-Page'>
@@ -21,6 +28,9 @@ const CommunityPage = ({ toggleSidebar }) => {
                 <GiHamburgerMenu className='cmh-hamburger cursor' onClick={() => toggleSidebar()} />
                 <h2>Community</h2>
             </div> */}
+
+            {/* Posts is the only data we will be fetching here so only it should have loading */}
+
             <div className='community'>
                 <div className='community-header'>
                     <div className='ch'>
@@ -43,6 +53,8 @@ const CommunityPage = ({ toggleSidebar }) => {
                     <div className={`cm-Feed ${route==='Feed'?true:false} hide_scrollbar`}>
                         <ul>
                             {feeds.map((val, idx) => (
+                                loading ? 
+                                <CommunityLoading idx={idx} /> :
                                 <li key={`feed-${idx}`} className='feed-li'>
                                     <div className='fl-top'>
                                         <div className='flt-img'></div>
@@ -86,10 +98,16 @@ const CommunityPage = ({ toggleSidebar }) => {
                                 <span className='cmdm-value'>63K</span>
                                 <span className='cmdm-name'>Members</span>
                             </div>
-                            <div className='cmd-metric'>
+                            
+                            {loading && <div className='cmd-metric'>
+                                <div className='cmdm-value cmdm-loading'><SkeletonLoader /></div>
+                                <div className='cmdm-name cmdm-loading'><SkeletonLoader /></div>
+                            </div>}
+
+                            {!loading && <div className='cmd-metric'>
                                 <span className='cmdm-value'>2.2K</span>
                                 <span className='cmdm-name'>Posts</span>
-                            </div>
+                            </div>}
                         </div>
                         <div className='cm-admins'>
                             <span>ADMINISTRATORS</span>

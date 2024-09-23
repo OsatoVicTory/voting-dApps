@@ -124,16 +124,28 @@
 .whl-img {
     width: 36px;
     height: 36px;
-    border-radius: 50%;
-    background-color: var(--grey);
     display: flex;
     justify-content: center;
     align-items: center;
+    background-color: var(--grey);
+    border-radius: 50%;
+}
+.whl-img img, .whl-img div {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+}
+.whli-loading {
+    padding: 0 !important;
+    background-color: transparent;
 }
 .whl-icon {
     width: 24px;
     height: 24px;
     color: var(--white);
+}
+.whl-icon.whli-loading {
+    border-radius: 50%;
 }
 .whl-txt {
     flex: 3;
@@ -149,6 +161,10 @@
     font-size: 16px;
     font-weight: 500;
 }
+.whl-loading {
+    width: 90%;
+    height: 16px;
+}
 .whl-address {
     font-size: 14px;
     color: var(--grey);
@@ -163,7 +179,13 @@
     font-size: 18px;
     font-weight: 700;
 }
-
+.whld-loading {
+    width: 60px;
+    height: 18px;
+}
+.whl-time.whld-loading {
+    height: 15px;
+}
 @media screen and (max-width: 770px) {
     .wh-hamburger {
         display: block;

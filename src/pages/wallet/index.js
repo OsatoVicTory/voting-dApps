@@ -1,15 +1,31 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import './wallet.css';
 import { FaDollarSign, FaArrowDown } from 'react-icons/fa';
 import { BsFillSendFill } from 'react-icons/bs';
 import { TOKEN_NAME } from '../../config';
 import WalletModal from './modal';
+import WalletLoading from './loading';
+import NoData from '../../component/nodata';
+import { useSelector, useDispatch } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { setWallet } from '../../store/wallet';
 
 const Wallet = ({ toggleSidebar }) => {
 
     const amount = 12.98;
     const [modalType, setModalType] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [noData, setNoData] = useState(false);
+    const wallet = useSelector(state => state.wallet);
+    const contract = useSelector(state => state.contract);
+
+    const dispatch = useDispatch();
+    const setWalletData = bindActionCreators(setWallet, dispatch);
+
+    useEffect(() => {
+        setTimeout(() => { setLoading(false); }, 5000);
+    }, []);
 
     const history = [
     ...Array(5).fill({type:'Sent',amount:150,address:'0x5274tygr8e7wg278041g1w078',time:'16 Sep 2024, 12:15 p.m'}),
@@ -55,28 +71,33 @@ const Wallet = ({ toggleSidebar }) => {
                         <div className='wh'>
                             <h4>Transaction history</h4>
                         </div>
-                        <ul>
-                            {history.map((val, idx) => (
-                                <li key={`hist-${idx}`} className='wh-li'>
-                                    <div className='whl-img'>
-                                        {val.send ?
-                                            <BsFillSendFill className='whl-icon' /> :
-                                            <FaArrowDown className='whl-icon' /> 
-                                        }
-                                    </div>
-                                    <div className='whl-txt'>
-                                        <span className='whl-type'>{val.type}</span>
-                                        <span className='whl-address'>
-                                            {(val.type === 'Received' ? 'From: ' : 'To: ') + val.address}
-                                        </span>
-                                    </div>
-                                    <div className='whl-det'>
-                                        <span className='whl-amount'>{val.amount + ' ' + TOKEN_NAME}</span>
-                                        <span className='whl-time'>{val.time}</span>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
+                        {noData ?
+                            <NoData text={'No transaction history'} /> :
+                            loading ? 
+                                <WalletLoading /> :
+                                <ul>
+                                    {history.map((val, idx) => (
+                                        <li key={`hist-${idx}`} className='wh-li'>
+                                            <div className='whl-img'>
+                                                {val.send ?
+                                                    <BsFillSendFill className='whl-icon' /> :
+                                                    <FaArrowDown className='whl-icon' /> 
+                                                }
+                                            </div>
+                                            <div className='whl-txt'>
+                                                <span className='whl-type'>{val.type}</span>
+                                                <span className='whl-address'>
+                                                    {(val.type === 'Received' ? 'From: ' : 'To: ') + val.address}
+                                                </span>
+                                            </div>
+                                            <div className='whl-det'>
+                                                <span className='whl-amount'>{val.amount + ' ' + TOKEN_NAME}</span>
+                                                <span className='whl-time'>{val.time}</span>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                        }
                     </div>
                 </div>
             </div>

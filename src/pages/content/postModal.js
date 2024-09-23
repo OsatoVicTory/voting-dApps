@@ -1,8 +1,13 @@
 import { useRef, useEffect, useState } from "react";
+import { Editor } from "react-draft-wysiwyg";
+import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+// import '../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { AiOutlineClose, AiOutlineSearch } from 'react-icons/ai';
 import { MdOutlineArrowDropDown, MdSend } from "react-icons/md";
 import './postModal.css';
 import MultiChoiceInputWithDropdown from "../../component/multiChoice";
+
+// destination is communityName if we are coming from a community
 
 const PostModal = ({ closeModal, destination }) => {
 
@@ -50,6 +55,18 @@ const PostModal = ({ closeModal, destination }) => {
             document.removeEventListener("click", clickFn, true);
         }
     }, []);
+
+    function handleChange(e) {
+        console.log(e);
+        // e => { 
+        //     blocks: [ 
+        //         { 
+        //             text, key-(peculiar to the package), type-(styling, whether span, bold, etc) 
+        //         }, 
+        //         ...
+        //     ] 
+        // }
+    };
     
     const communities = ['Announcement', 'Ethereum', 'ChatGPT', 'Basketball', 'Machine Learning', 'Blockchain'];
 
@@ -118,7 +135,16 @@ const PostModal = ({ closeModal, destination }) => {
                     </div>
                     <div className="pMc-field">
                         <label>Post contents</label>
-                        <textarea placeholder="Type your post" />
+                        {/* <textarea placeholder="Type your post" /> */}
+
+                        <Editor
+                            // editorState={editorState}
+                            toolbarClassName="toolbarClassName"
+                            wrapperClassName="wrapperClassName"
+                            editorClassName="editorClassName"
+                            onChange={handleChange}
+                            // onEditorStateChange={this.onEditorStateChange}
+                        />
                         
                     </div>
                 </div>

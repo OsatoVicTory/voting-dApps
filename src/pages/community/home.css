@@ -69,12 +69,28 @@
     width: 45px;
     height: 45px;
     border-radius: 50%;
+}
+.cmtsl-img .d- {
     background-color: #f5f5f5;
+}
+.cmtsl-img > div, .cmtsl-img img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
 }
 .cmtsl-txt {
     margin-left: 7px;
     display: flex;
     flex-direction: column;
+    width: calc(100% - 54px);
+}
+.cmts-loading {
+    width: 100%;
+    height: 15px;
+    margin-top: 2.4px;
+}
+.cmts-loading:first-child {
+    margin-top: 0px;
 }
 .cmts-name {
     font-size: 14px;
@@ -87,6 +103,37 @@
 .cmts-members {
     font-weight: 300;
 }
+.feed-li-loading .flt-poster {
+    width: 90px;
+    height: 14px;
+}
+.feed-li-loading .flt-time {
+    width: 55px;
+    height: 14px;
+}
+.feed-li-loading .fl-mid > div {
+    height: 90px;
+}
+.feed-li-loading .flb-left {
+    width: min(calc(100% - 70px), 350px);
+    height: 21px;
+}
+.feed-li-loading .flb-right {
+    width: max(calc(100% - 360px), 60px);
+    height: 21px;
+    justify-content: flex-end;
+}
+.feed-li-loading .flb-left > div, .feed-li-loading .flb-right > div {
+    margin: 0;
+    margin-left: 10px;
+    width: 100%;
+}
+.feed-li-loading .flb-right > div {
+    width: 60px;
+    height: 21px;
+    padding: 0;
+}
+
 @media screen and (max-width: 1024px) {
     .communities ul {
         grid-template-columns: 50% 50%;

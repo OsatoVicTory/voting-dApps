@@ -305,6 +305,18 @@ div input {
     margin-left: 10px;
     font-size: 13.5px;
 }
+.wrapperClassName {
+    border: 1px solid var(--bordergrey);
+    border-radius: 6px;
+}
+.editorClassName {
+    height: 150px;
+    padding: 6px 10px;
+}
+/* to remove image own add this below => .rdw-image-wrapper */
+[title~="Superscript"], [title~="Subscript"], [title~="Indent"], [title~="Outdent"], .rdw-embedded-wrapper, .rdw-history-wrapper {
+    display: none !important;
+}
 @media screen and (max-width: 500px) {
     .postModal .pM-content {
         width: 100%;

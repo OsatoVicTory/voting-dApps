@@ -188,6 +188,17 @@ div .profile, .profile > div {
     font-size: 13px;
     font-weight: 400;
 }
+.ppu-loading {
+    width: 15px;
+    height: 15px;
+}
+.pp-loading {
+    width: 60px;
+    height: 16px;
+}
+.ppu-icon-loading {
+    height: 15px;
+}
 @media screen and (max-width: 800px) {
     .profile-desc {
         grid-template-rows: repeat(2, max-content);
