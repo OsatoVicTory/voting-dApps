@@ -109,6 +109,78 @@ div input {
     width: 100%;
     margin-top: 12px;
 }
+.pMc-file input {
+    display: none !important;
+}
+.pMc-file, .file-doc, .file-doc-, .file-doc-edit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.pMc-file label {
+    width: 100%;
+    height: 90px;
+    border-radius: 10px 10px 0px 0px;
+    position: relative;
+    width: min(100%, 300px);
+    background-color: rgba(27, 27, 27, 0.395);
+}
+.post-file-label > div img, .post-file-label > div {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+}
+.image-bg {
+    background-color: rgba(27, 27, 27, 0.395);
+}
+.file-doc- {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+}
+.file-doc {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+.file-doc-edit {
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 10px 0px 0px 10px !important;
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    background-color: var(--white);
+    box-shadow: var(--boxshadow);
+}
+.fd-icon {
+    width: 24px;
+    height: 21px;
+    color: #f5f5f5;
+}
+.file-desc {
+    font-size: 15px;
+    color: #f5f5f5;
+    margin-left: 9px;
+}
+.file-doc- .fd-icon {
+    width: 40px;
+    height: 30px;
+    color: var(--white);
+}
+.file-doc- .file-desc {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--white);
+}
+.file-doc-edit .fd-icon {
+    width: 15px;
+    height: 15px;
+    color: var(--grey);
+}
 .pMc-select {
     position: relative;
 }
@@ -310,12 +382,89 @@ div input {
     border-radius: 6px;
 }
 .editorClassName {
-    height: 150px;
+    max-height: 150px !important;
     padding: 6px 10px;
 }
 /* to remove image own add this below => .rdw-image-wrapper */
-[title~="Superscript"], [title~="Subscript"], [title~="Indent"], [title~="Outdent"], .rdw-embedded-wrapper, .rdw-history-wrapper {
+[title~="Superscript"], [title~="Subscript"], [title~="Indent"], [title~="Outdent"], .rdw-embedded-wrapper, .rdw-history-wrapper,
+.rdw-fontsize-wrapper, .rdw-fontfamily-wrapper, .rdw-colorpicker-wrapper, .rdw-image-wrapper, .rdw-block-wrapper {
     display: none !important;
+}
+.scm-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.pMc-field {
+    width: 100%;
+    margin-top: 15px;
+}
+.scmm-wallet-loading, .scm-main > h4 {
+    margin: 15px 0;
+    margin-top: 0px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+}
+.scm-wallet-loading > div {
+    width: 100px;
+    height: 20px;
+}
+.retry-wallet > div {
+    width: max-content;
+    padding: 8px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    padding-bottom: 10px;
+    border-radius: 15px;
+    background-color: var(--bgblue);
+    color: var(--white);
+}
+.scm-main > p {
+    color: red;
+    margin: 0;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 13px;
+}
+.scm-vote {
+    margin-top: 15px;
+    width: min(100%, 330px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 5px;
+}
+.scmv {
+    width: min(45%, 150px);
+    padding: 12px 0px;
+    height: max-content;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid var(--bordergrey);
+    cursor: pointer;
+    border-radius: 6px;
+}
+.scmv.true {
+    border: 2px solid var(--grey);
+}
+.scmv .scmv-icon {
+    width: 40px;
+    height: 40px;
+    color: var(--grey);
+}
+.scmv span {
+    font-size: 13.8px;
+    margin: 10px;
+    padding: 0;
+}
+.stakeContentModal .pMc-field {
+    margin-top: 27px;
+}
+.stakeContentModal .pMc-field label {
+    font-size: 13.8px;
+    font-weight: 480;
 }
 @media screen and (max-width: 500px) {
     .postModal .pM-content {

@@ -1,70 +1,48 @@
-import { useState } from 'react';
-import { Contract, BrowserProvider } from "ethers";
-import { Routes, Route } from 'react-router-dom';
-import { AiOutlineSearch } from 'react-icons/ai';
+import { useEffect, useState } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
+import { AiOutlineClose, AiOutlineSearch } from 'react-icons/ai';
 import { MdAccountBalanceWallet } from 'react-icons/md';
 import './contentList.css';
 import Content from './content';
 import Contentlist from './contentList';
 import PostModal from './postModal';
 import { GiHamburgerMenu } from 'react-icons/gi';
-import { useSelector, useDispatch } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { setContract } from '../../store/contract';
-import abi from '../../contractABI.json';
-import { CONTRACT_ADDRESS } from '../../config';
-import { setMessage } from '../../store/message';
-import { setMessageFn } from '../utils';
+import { useSelector } from 'react-redux';
+import { formatDate, shortenWalletAddress } from '../../utils';
 
 const ContentList = ({ toggleSidebar }) => {
 
+    const navigate = useNavigate();
     const [search, setSearch] = useState('');
+    const [searchLists, setSearchLists] = useState([]);
     const [modal, setModal] = useState(false);
-    const [connecting, setConnecting] = useState(false);
     const contract = useSelector(state => state.contract);
-
-    const dispatch = useDispatch();
-    const setContractData = bindActionCreators(setContract, dispatch);
-    const setMessageData = bindActionCreators(setMessage, dispatch);
-
-    async function loadContract() {
-        const contractAddress = CONTRACT_ADDRESS;
-        // Ensure window.ethereum is available
-        if (!window.ethereum) {
-          throw new Error("No crypto wallet found. Please install MetaMask.");
-        }
-        setConnecting(true);
-        const provider = await new BrowserProvider(window.ethereum);
-        const signer_val = await provider.getSigner();
-        const signerAddress = await signer_val.getAddress();
-        const contractInstance = await new Contract(contractAddress, abi, signer_val);
-        const userPoints = await contractInstance.getPoints(signerAddress);
-        const userTasks = await contractInstance.getTasks(signerAddress);
-        // to get token amount as per 1E18 use getTokenAmount function from util
-        // setSigner(signer);
-        // setUser(signerAddress);
-        setContractData({ ...contractInstance, address: signerAddress });
-        setMessageFn(setMessageData, { status: 'success', message: 'Welcome '+signerAddress });
-        setConnecting(false);
-    };
-    
-    
-    function connectWallet() {
-        // needed
-        // if(user) return setMessageFn(setMessage, 'Wallet active, refresh page to connect new wallet');
-        
-        if (!window.ethereum) return setMessageFn(setMessage, 'Install Metamask extension!');
-
-        loadContract().catch(error => {
-            console.error('Error connecting wallet', error);
-            setMessageFn(setMessageData, { status: 'error', message: 'Error connecting wallet' });
-            setConnecting(false);
-        });
-    };
+    const contents = useSelector(state => state.contents);
 
     function closeModal() { setModal(false); }
     function openModal() { setModal(true); }
     function handleChange(e) { setSearch(e.target.value); };
+
+    useEffect(() => {
+        if(search) {
+            const res = [];
+            const srch = search.toLowerCase();
+            for(const content of contents) {
+                let search_related_to = '';
+                if(content.author.toLowerCase().includes(srch)) search_related_to += 'author, ';
+                if(content.sub_data.title.toLowerCase().includes(srch)) search_related_to += 'title, ';
+                if(content.sub_data.content.toLowerCase().includes(srch)) search_related_to += 'content, ';
+                if(content.sub_data.tags.join('').toLowerCase().includes(srch)) search_related_to += 'tags';
+                if(search_related_to) {
+                    res.push({ 
+                        ...content, 
+                        search_related_to: search_related_to.endsWith(', ') ? search_related_to.slice(0, -2) : search_related_to
+                    });
+                }
+            }
+            setSearchLists(res);
+        } else setSearchLists([]);
+    }, [search]);
 
     return (
         <div className='content-list'>
@@ -73,15 +51,35 @@ const ContentList = ({ toggleSidebar }) => {
                 <div className="header-search">
                     <div className='hs'>
                         <AiOutlineSearch className={`hs-icon ${search?true:false}`} />
-                        <input className={`hs-input ${search?true:false}`} placeholder='Search...' onChange={handleChange} />
-                        <div className={`hs-search-button ${search?true:false} cursor`}>
-                            <AiOutlineSearch className='hs-icon' />
+                        <input className={`hs-input ${search?true:false}`} 
+                        value={search||""} placeholder='Search...' onChange={(e) => handleChange(e)} />
+                        <div className={`hs-search-button ${search?true:false} cursor`} onClick={() => setSearch('')}>
+                            <AiOutlineClose className='hs-icon' />
                         </div>
                     </div>
                 </div>
-                <div className="header-wallet cursor" onClick={() => connectWallet()}>
+                <div className="header-wallet">
                     <MdAccountBalanceWallet className='hw-icon' />
-                    <span className='hw-txt'>Connect</span>
+                    <span className='hw-txt'>{shortenWalletAddress(contract.address||'')||'Wallet'}</span>
+                </div>
+
+                <div className={`header-search-dropdown ${searchLists.length > 0 ? true : false}`}>
+                    <ul className='hsd-lists'>
+                        {searchLists.map((val, idx) => (
+                            <li className='hsdl-li' key={`hsdl-${idx}`} onClick={() => {
+                                setSearch('');
+                                navigate(`/app/post/${val.content_id}`);
+                            }}>
+                                <span className='hsdl-title'>
+                                    Post title: <span>{val.sub_data.title}</span>
+                                </span>
+                                <span className='hsdl-time'>
+                                    Posted: {formatDate(val.timestamp, true)}
+                                    {val.search_related_to && <span>{`Search in: [${val.search_related_to}]`}</span>}
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
                 </div>
             </header>
             <Routes>

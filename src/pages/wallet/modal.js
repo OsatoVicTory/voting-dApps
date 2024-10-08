@@ -3,6 +3,7 @@ import './modal.css';
 import { MdSend } from "react-icons/md";
 import { FaRegCopy } from "react-icons/fa";
 import { AiOutlineClose } from "react-icons/ai";
+import { TOKEN_NAME } from "../../config";
 
 const WalletModal = ({ modalType, closeModal }) => {
 
@@ -23,6 +24,7 @@ const WalletModal = ({ modalType, closeModal }) => {
 
         return (
             <div className="wm-Receive">
+                <p>Copy your address</p>
                 <div className="wmr-text">
                     <span>0x25tg472gh32476hf523fh69fo246n</span>
                 </div>
@@ -55,6 +57,7 @@ const WalletModal = ({ modalType, closeModal }) => {
 
         return (
             <div className="wm-Send">
+                <p>Send tokens to an address</p>
                 <div className="wmS-field">
                     <label>Receipient address</label>
                     <input placeholder="Enter address" name='address' onChange={handleChange} />
@@ -79,7 +82,7 @@ const WalletModal = ({ modalType, closeModal }) => {
         <div className="wallet-modal">
             <div className="wm" ref={modalRef}>
                 <div className="wm-header">
-                    <h4>{modalType} $GAX</h4>
+                    <h4>{modalType} {TOKEN_NAME}</h4>
                     <AiOutlineClose className="wmh-icon cursor" onClick={() => closeModal()} />
                 </div>
                 {Component[modalType]}

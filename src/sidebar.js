@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { MdHome, MdAccountBalanceWallet, MdAccountCircle } from 'react-icons/md';
+import { MdHome, MdAccountBalanceWallet, MdAccountCircle, MdGroups } from 'react-icons/md';
 import './voting.css';
 import { AiOutlineClose } from 'react-icons/ai';
+import logo from './images/idonk_no_bg_1.png';
 
 const Sidebar = ({ toggleSidebar, setShowSidebar }) => {
 
@@ -25,7 +26,7 @@ const Sidebar = ({ toggleSidebar, setShowSidebar }) => {
         <div className="sidebar">
             <div className='sb-header'>
                 <AiOutlineClose className='sb-icon cursor' onClick={()=>toggleSidebar()}/>
-                <h4>stack overvote</h4>
+                <img src={logo} alt='idonk-logo' />
             </div>
             <div className='sb-main'>
                 <div className={`sb-main-li cursor ${route==='/'}`} onClick={()=>fn('')}>
@@ -41,7 +42,7 @@ const Sidebar = ({ toggleSidebar, setShowSidebar }) => {
                     <span className='sb-main-txt'>Profile</span>
                 </div>
                 <div className={`sb-main-li cursor ${route==='community'}`} onClick={()=>fn('community')}>
-                    <MdAccountCircle className='sb-icon' />
+                    <div className='md-groups'><MdGroups className='sb-icon' /></div>
                     <span className='sb-main-txt'>Community</span>
                 </div>
             </div>

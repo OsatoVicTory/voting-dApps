@@ -1,6 +1,27 @@
+.create__Community__Modal__Overlay {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    z-index: 999999;
+    top: 0px;
+    left: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(27, 27, 27, 0.9);
+}
+.create__Community__Modal {
+    width: min(100%, 600px);
+    background-color: var(--white);
+    height: 97%;
+    padding: 10px 15px;
+    border-radius: 20px;
+    overflow-y: auto;
+}
 .community-Create {
     width: 100%;
     height: 100%;
+    height: auto;
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -9,6 +30,7 @@
     display: flex;
     align-items: center;
     padding: 15px;
+    padding-top: 10px;
 }
 .cch-icon {
     width: 24px;
@@ -16,7 +38,7 @@
     color: #4a4a4a;
 }
 .community-Create > div {
-    width: min(100%, 600px)
+    width: 100%;
 }
 .community-Create-header h1 {
     margin: 0;
@@ -41,6 +63,7 @@
     border-radius: 10px;
     padding: 10px;
     font-family: inherit;
+    padding-bottom: 12px;
 }
 .community-Create input:focus, .cmtc-select-box:focus, .community-Create textarea:focus {
     border: 1px solid var(--grey);

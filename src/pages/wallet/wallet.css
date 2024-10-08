@@ -50,6 +50,11 @@
     margin: 0px;
     margin-top: 10px;
 }
+.wallet-amount-loading {
+    width: 100%;
+    margin-top: 10px;
+    height: 24px;
+}
 .wallet-actions {
     justify-content: center;
 }

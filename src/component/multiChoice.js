@@ -1,25 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { FaCircleCheck } from "react-icons/fa6";
 import { MdOutlineArrowDropDown } from "react-icons/md";
 import './multiChoice.css';
 
-const MultiChoiceInputWithDropdown = ({ class_name, dropdownLists, selected, selectFn, height, placeholder }) => {
+const MultiChoiceInputWithDropdown = ({ class_name, dropdownLists, selected, selectFn, placeholder }) => {
 
     const [showDropdown, setShowDropdown] = useState(false);
     const rawLists = dropdownLists.map(val => ({ val, checked: selected.includes(val) }));
     const [lists, setLists] = useState(rawLists);
-    const [pos, setPos] = useState({ top: '50px' });
     const [selectedLists, setSelectedLists] = useState([...selected]);
-
-    useEffect(() => {
-        const ele = document.getElementById("mciwd-input");
-        if(ele) {
-            const { top, bottom } = ele.getBoundingClientRect();
-            if(window.innerHeight - bottom <= (height||200)) setPos({ bottom: '50px' });
-            else setPos({ top: '50px' });
-        }
-    }, []);
 
     function handleChange(e) {
         const { value } = e.target;
@@ -27,13 +17,18 @@ const MultiChoiceInputWithDropdown = ({ class_name, dropdownLists, selected, sel
     };
 
     const selectfn = (val) => {
-        const arr = [...selectedLists];
-        setLists(lists.map(list => {
-            // if(list.checked) arr.push(list.val);
-            if(lists.val === val) return { ...list, checked: !list.checked };
-            return list;
-        }));
-        arr.push(val);
+        const arr = [];
+        const newLists = [];
+        for(const list of lists) {
+            if(list.val === val.val) {
+                if(!list.checked) arr.push(list);
+                newLists.push({ ...list, checked: !list.checked });
+            } else {
+                if(list.checked) arr.push(list);
+                newLists.push(list);
+            }
+        };
+        setLists(newLists);
         setSelectedLists(arr);
     };
 
@@ -52,7 +47,7 @@ const MultiChoiceInputWithDropdown = ({ class_name, dropdownLists, selected, sel
                         selectedLists.map((val, idx) => (
                             <div className="mciwd-div" key={`mciwd-${idx}`}>
                                 <span>{val.val}</span>
-                                <AiOutlineClose className='mciwd-div-icon cursor' />
+                                <AiOutlineClose className='mciwd-div-icon cursor' onClick={() => selectfn(val)}/>
                             </div>
                         ))}
                     </div>
@@ -61,7 +56,7 @@ const MultiChoiceInputWithDropdown = ({ class_name, dropdownLists, selected, sel
                     <MdOutlineArrowDropDown className={`mciwd-icon ${showDropdown}`} />
                 </div>
             </div>
-            <div className={`mciwd-dropdown ${showDropdown}`} style={{...pos}}>
+            <div className={`mciwd-dropdown ${showDropdown}`}>
                 <div className='hide_scrollbar'>
                     <div className="mciwdd">
                         <div className="mciwdd-div for-input">
@@ -72,7 +67,7 @@ const MultiChoiceInputWithDropdown = ({ class_name, dropdownLists, selected, sel
                                 {lists.map((val, idx) => (
                                     <div className="mciwdd-div" key={`mciwdd-${idx}`} onClick={() => selectfn(val)}>
                                         <span>{val.val}</span>
-                                        <FaCircleCheck className="mciwddd-icon cursor" />
+                                        {val.checked && <FaCircleCheck className="mciwddd-icon cursor" />}
                                     </div>
                                 ))}
                             </div>

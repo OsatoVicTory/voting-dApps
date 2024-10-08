@@ -51,6 +51,12 @@
 .communities, .cmts-li {
     width: 100%;
 }
+.communities-error {
+    width: 100%;
+    height: calc(100% - 60px);
+    display: flex;
+    justify-content: center;
+}
 .communities ul {
     list-style: none;
     margin: 0;

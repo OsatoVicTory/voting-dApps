@@ -1,3 +1,9 @@
+.profile {
+    overflow: hidden;
+}
+.Profile-content {
+    overflow-y: auto;
+}
 .profileHome {
     width: 100%;
     height: calc(100% - 56px);
@@ -7,10 +13,14 @@ div .profile, .profile > div {
     width: 100%;
     height: 100%;
 }
-.profile-content > div {
+.Profile-content > div {
     width: 100%;
 }
 .profile-header {
+    position: sticky;
+    top: 0px;
+    right: 0px;
+    background-color: var(--white);
     height: 55.8px;
     padding: 10px 15px;
     border-left: 1px solid var(--bordergrey);
