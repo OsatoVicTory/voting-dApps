@@ -38,10 +38,29 @@
 .wmr-text, .wmS-field input {
     width: 100%;
     padding: 10px;
-    border: 1px solid var(--bordergrey);
-    border-radius: 6px;
     color: #3e3e3e;
     font-size: 15px;
+}
+.wmS-field input {
+    border: 1px solid var(--bordergrey);
+    border-radius: 9px;
+}
+.wmS-field input:focus {
+    border-color: var(--grey);
+}
+.wm-Receive > p, .wm-Send > p {
+    margin: 0px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: 500;
+}
+.wmr-text {
+    padding: 5px;
+}
+.wmr-text span {
+    padding: 10px 15px;
+    border: 1px solid var(--grey);
+    border-radius: 6px;
 }
 .wmr-text {
     display: flex;

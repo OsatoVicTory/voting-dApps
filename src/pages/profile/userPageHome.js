@@ -23,7 +23,8 @@ const UserPageHome = ({ route, error, loading, fetchUser, feedsData, setContentI
                     <NoData text={`No ${route} yet.`} />
                 </div> :
 
-                <FeedsLists feeds={feedsData} navToContentPage={(content_id) => setContentId(content_id)} />
+                <FeedsLists feeds={feedsData} community={true}
+                navToContentPage={(content_id) => setContentId(content_id)} />
             }
         </div>
     );

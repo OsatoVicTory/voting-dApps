@@ -5,13 +5,14 @@ import "./styles.css";
 import { useDispatch } from "react-redux";
 import { setContract } from "../../store/contract";
 import { setMessage } from "../../store/message";
-import { decodeData, JSONParser, setMessageFn } from "../../utils";
+import { decodeData, getTokenAmount, setMessageFn } from "../../utils";
 import { useNavigate } from "react-router-dom";
 import { bindActionCreators } from "redux";
-import { createContentContractInstance, createUserContractInstance } from "../../services/contracts_creators";
+import { createContentContractInstance, createERC20ContractInstance, createUserContractInstance } from "../../services/contracts_creators";
 import { setUser } from "../../store/user";
 import banner from '../../images/wallet.png';
 import logo from '../../images/idonk_no_bg.png';
+import { setWallet } from "../../store/wallet";
 
 const LandingPage = () => {
 
@@ -22,6 +23,7 @@ const LandingPage = () => {
     const setContractData = bindActionCreators(setContract, dispatch);
     const setMessageData = bindActionCreators(setMessage, dispatch);
     const setUserData = bindActionCreators(setUser, dispatch);
+    const setWalletData = bindActionCreators(setWallet, dispatch);
 
     async function loadContract() {
         
@@ -46,9 +48,18 @@ const LandingPage = () => {
             return navigate('/signup');
         } else {
             const res = await userContractInstance.getMetaData();
-            console.log('user meta data', res);
             const userRes = JSON.parse(res);
             const metaData = decodeData(userRes.metaData, 'bytes');
+
+            const walletContractInstance = await createERC20ContractInstance(signer_val);
+            const resWallet = await walletContractInstance.balanceOf(signerAddress);
+            const name = await walletContractInstance.name();
+            const symbol = await walletContractInstance.symbol();
+            const decimals = await walletContractInstance.decimals();
+            const resAmt = getTokenAmount(resWallet);
+            
+            // decimals is BigInt
+            setWalletData({ amount: resAmt, symbol, decimals, name, actualAmount: resWallet });
             setUserData({ ...userRes, ...metaData });
             setMessageFn(setMessageData, { status: 'success', message: 'Welcome '+ userRes.name });
             navigate('/app');
@@ -62,7 +73,6 @@ const LandingPage = () => {
         if (!window.ethereum) return setMessageFn(setMessage, { status: 'error', message: 'Install Metamask extension!' });
 
         loadContract().catch(error => {
-            console.error('Error connecting wallet', error);
             setMessageFn(setMessageData, { status: 'error', message: 'Error connecting wallet' });
             setConnecting(false);
         });

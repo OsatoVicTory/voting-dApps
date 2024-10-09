@@ -249,6 +249,16 @@
     font-weight: 480;
     border-radius: 18px;
 }
+.pc-main-community {
+    width: max-content;
+    padding: 5px 10px;
+    padding-bottom: 8px;
+    font-size: 13px;
+    border-radius: 15px;
+    background-color: var(--bgblue);
+    color: var(--white);
+    margin-left: 3px;
+}
 /* Voters css has already been imported from content.css, no need to style voters div here again */
 @media screen and (max-width: 770px) {
     .profile-Main {

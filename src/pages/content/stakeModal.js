@@ -4,7 +4,7 @@ import './postModal.css';
 import { MdSend } from 'react-icons/md';
 import { createERC20ContractInstance, createVotesContractInstance, parseBigInt } from '../../services/contracts_creators';
 import { useDispatch, useSelector } from 'react-redux';
-import { getTokenAmount, multiplyBigDecimals, setMessageFn } from '../../utils';
+import { getTokenAmount, multiplyBigDecimals, setMessageFn, subtractBigDecimals } from '../../utils';
 import { BiDownvote, BiSolidDownvote, BiSolidUpvote, BiUpvote } from 'react-icons/bi';
 import { bindActionCreators } from 'redux';
 import { setWallet } from '../../store/wallet';
@@ -31,14 +31,15 @@ const StakeContentModal = ({ closeModal, content_id, community_id, setMessageDat
     const fetchWalletBalance = async () => {
         setWalletLoading(true);
         try {
-            if(wallet.amount) return setWalletLoading(false);
+            // let wallet fetch but put current value (if we have it) as placeholder
+            if(wallet.amount) setWalletLoading(false);
             const walletContractInstance = await createERC20ContractInstance(contract.signer);
             const res = await walletContractInstance.balanceOf(contract.address);
             // res is type bigInt
             const name = await walletContractInstance.name();
             const symbol = await walletContractInstance.symbol();
             const decimals = await walletContractInstance.decimals();
-            const resAmt = getTokenAmount(res, decimals);
+            const resAmt = getTokenAmount(res);
             // decimals is BigInt
             setWalletData({ amount: resAmt, symbol, decimals, name, actualAmount: res });
             setWalletLoading(false);
@@ -78,6 +79,11 @@ const StakeContentModal = ({ closeModal, content_id, community_id, setMessageDat
             await votesContractInstance.voteContent((community_id||0)-0, bigIntAmount, content_id-0, vote);
             const date = Math.floor(new Date().getTime() / 1000);
             setUserVoteTypeFn({ voters_id: contract.address, stake: bigIntAmount+'', time_stamp: date }, vote);
+
+            const new_wallet_amt = subtractBigDecimals(wallet.actualAmount, bigIntAmount);
+            const resAmt = getTokenAmount(new_wallet_amt);
+            setWalletData({ amount: resAmt, actualAmount: resAmt });
+
             setMessageFn(setMessageData, { status: 'success', message: 'Voted successfully.'});
             setLoading(false);
             closeModal();
@@ -105,16 +111,17 @@ const StakeContentModal = ({ closeModal, content_id, community_id, setMessageDat
                     </div>
                 </div>
                 <div className='scm-main'>
+                    {/* this code is very correct */}
                     {
+                        wallet.amount ?
+
+                        <h4>Your Balance: {wallet.amount+' '+wallet.symbol}</h4> :
+
                         walletLoading === true ?
 
                         <div className='scmm-wallet-loading'>Your Balance: <div><SkeletonLoader /></div></div> :
 
-                        walletLoading === 'error' ?
-
-                        <div className='scmm-wallet-loading retry-wallet'><div onClick={fetchWalletBalance}>Retry</div></div> :
-
-                        <h4>Your Balance: {wallet.amount+' '+wallet.symbol}</h4>
+                        <div className='scmm-wallet-loading retry-wallet'><div onClick={fetchWalletBalance}>Retry</div></div> 
                     }
                     <p>Note that your vote/stake cannot be revoked or changed later</p>
                     <div className='scm-vote'>

@@ -2,12 +2,9 @@ import { BiDownvote, BiUpvote } from 'react-icons/bi';
 import { formatDate } from '../utils';
 import './feedsLists.css';
 import ContentFile from './contentFile';
-import { useEffect } from 'react';
 import ContentText from './contentText';
 
-const FeedsLists = ({ feeds, navToContentPage, linkCopyable }) => {
-
-    useEffect(() => {}, []);
+const FeedsLists = ({ feeds, navToContentPage, community, linkCopyable }) => {
 
     return (
         <ul className='feeds__lists'>
@@ -17,8 +14,10 @@ const FeedsLists = ({ feeds, navToContentPage, linkCopyable }) => {
                         <div className='f-l-t-img'></div>
                         <span className='f-l-t-poster'>{val.author}</span>
                         <span className='f-l-t-time'>{`Posted ${formatDate(val.timestamp, true)}`}</span>
-                        {/* add something to copy link, like this*/}
-                        {/* {linkCopyable && <div className='copy-link'></div>} */}
+                        {/* add something for community, only for votes in profile home page */}
+                        {(community && val.community_id) && <div className='community-linkup'>
+                            For community
+                        </div>}
                     </div>
                     <div className='f-l-mid'>
                         <div className='pl-mid-title'>{val.sub_data.title}</div>

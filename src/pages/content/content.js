@@ -43,6 +43,7 @@ const Content = () => {
     const { id } = useParams();
     
     const contract = useSelector(state => state.contract);
+    const user = useSelector(state => state.user);
     const cnt = useSelector(state => state.contents).find(val => val.content_id == id);
 
     const dispatch = useDispatch();
@@ -64,7 +65,7 @@ const Content = () => {
         const votes_data = await contentContractInstance.getVoters(id-0);
         console.log('vote data =>', votes_data);
         const data = [];
-        for(const vote_data of Array.from(votes_data)) {
+        for(const vote_data of Array.from(votes_data).reverse()) {
             const vote = JSON.parse(vote_data);
             const author = await userContractInstance.getUsername(vote.voters_id);
             data.push({ ...vote, name: author });
@@ -74,8 +75,8 @@ const Content = () => {
         const vote_type = await rewardsContractInstance.myVote(id-0);
         const total_votes = await contentContractInstance.getTotalVotes(id-0);
         console.log('rewarded, vote count', is_rewarded, vote_type);
-        setTotalVotes(total_votes);
-        setUserVoteType(vote_type);
+        setTotalVotes(total_votes - 0);
+        setUserVoteType(vote_type - 0);
         setIsRewarded(is_rewarded);
         setVoters(data);
         setVotesLoading(false);
@@ -91,7 +92,6 @@ const Content = () => {
             const userContractInstance = await createUserContractInstance(contract.signer);
             if(cnt) {
                 setContent(cnt);
-                console.log('content_data =>', cnt);
             } else {
                 const res = await contentContractInstance.getContent(id-0);
                 if(!res) {
@@ -99,7 +99,6 @@ const Content = () => {
                 }
                 const value = parseContentData(res);
                 const author = await userContractInstance.getUsername(value.author);
-                console.log('content data =>', res);
                 setContent({ ...value, author });
             }     
             setLoading(false); 
@@ -167,15 +166,17 @@ const Content = () => {
             await navigator.clipboard.writeText(`${FRONTEND_URL}/app/post/${id}`);
             setMessageFn(setMessageData, { status: 'success', message: 'Link copied.' });
         } catch (err) {
-            setMessageFn(setMessageData, { status: 'success', message: 'Failed to copy.' });
+            setMessageFn(setMessageData, { status: 'error', message: 'Failed to copy.' });
         }
     };
 
     const setUserVoteTypeFn = async (vote_data, type) => {
         try {
-            setVoters([vote_data, ...voters]);
-            setUserVoteType(type);
-            setTotalVotes(totalVotes + 1);
+            setVotesLoading(true);
+            setVoters([{ ...vote_data, name: user.name }, ...voters]);
+            setUserVoteType(type-0);
+            setTotalVotes((totalVotes-0) + 1);
+            setVotesLoading(false);
         } catch (err) {
             setVotesLoading(false);
             setMessageFn(setMessageData, { status: 'error', message: 'There was an Error. Check your internet.' });

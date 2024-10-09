@@ -9,12 +9,13 @@ import MultiChoiceInputWithDropdown from "../../component/multiChoice";
 import { useSelector, useDispatch } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { FaFile } from "react-icons/fa6";
-import { generateHTMLString, parseContentData, setMessageFn } from "../../utils";
+import { generateHTMLString, getTokenAmount, multiplyBigDecimals, parseContentData, setMessageFn, subtractBigDecimals } from "../../utils";
 import { setMessage } from "../../store/message";
 import { postingContent } from "../../store/contents";
 import { sendFile } from "../../services";
 import { MB } from "../../config";
-import { createContentContractInstance, createContentCreatorContractInstance, createUserContractInstance } from "../../services/contracts_creators";
+import { createContentCreatorContractInstance, createUserContractInstance, createVotesContractInstance, parseBigInt } from "../../services/contracts_creators";
+import { setWallet } from "../../store/wallet";
 
 // destination is communityName if we are coming from a community
 
@@ -22,15 +23,18 @@ const CommunityPostModal = ({ closeModal, destination, community_id, setFeeds, f
 
     const dispatch = useDispatch();
     const setMessageData = bindActionCreators(setMessage, dispatch);
+    const setWalletData = bindActionCreators(setWallet, dispatch);
     const postContentData = bindActionCreators(postingContent, dispatch);
+
     const contract = useSelector(state => state.contract);
-    const user = useSelector(state => state.user);
+    const wallet = useSelector(state => state.wallet);
 
     const modalRef = useRef();
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
     const [open, setOpen] = useState(true);
     const [sendLoading, setSendLoading] = useState(false);
     const [title, setTitle] = useState('');
+    const [stake, setStake] = useState(0);
     const [postContent, setPostContent] = useState({});
     const [postFile, setPostFile] = useState({});
     const [selected, setSelected] = useState([]);
@@ -38,11 +42,14 @@ const CommunityPostModal = ({ closeModal, destination, community_id, setFeeds, f
     const [postDestinationDropdown, setPostDestinationDropdown] = useState(false);
     const dropdownRef = useRef();
     const selectRef = useRef();
+    const sendLoadingRef = useRef(false);
     const options = ['Javascript', 'Python', 'Typescript', 'Nodejs', 'Ethereum'];
 
     function clickFn(e) {
         if(!modalRef.current) return;
         if(modalRef.current && !modalRef.current.contains(e.target)) { 
+            // ensure sendLoading is done before user can leave this page
+            if(sendLoadingRef.current) return setMessageFn(setMessageData, { status: 'error', message: `Wait till request is done` });
             setOpen(false); 
             closeModal(); 
         }
@@ -94,9 +101,28 @@ const CommunityPostModal = ({ closeModal, destination, community_id, setFeeds, f
         if(sendLoading) return setMessageFn(setMessageData, { status: 'error', message: 'Currently sending a request.' });
 
         setSendLoading(true);
-        // if no title, setMessage to alert user to fix it
+        sendLoadingRef.current = true;
+
+        if(!title || !stake || selected.length === 0 || !postContent.blocks[0].text) {
+            setSendLoading(false);
+            sendLoadingRef.current = false;
+            return setMessageFn(setMessageData, { status: 'error', 
+                message: `Please fill the ${!title ? 'title' : !stake ? 'stake' : selected.length === 0 ? 'tags' : 'content'} form` 
+            });
+        }
+
+        
         try {
-            let [secure_url, public_id, filename, filesize] = ['', '', '', ''];
+            // wallet data would have been updated by now
+            // and everywhere we might update it to backend
+            // it is also updated in redux-state
+            const bigIntAmount = parseBigInt(multiplyBigDecimals(stake));
+    
+            if(bigIntAmount > wallet.actualAmount) {
+                return setMessageFn(setMessageData, { status: 'error', message: 'Insufficient funds.' });
+            }
+
+            let [secure_url, public_id, filename, filesize, file_type] = ['', '', '', '', ''];
             if(postFile?.size) {
                 const formData = new FormData();
                 formData.append('file', postFile);
@@ -108,50 +134,64 @@ const CommunityPostModal = ({ closeModal, destination, community_id, setFeeds, f
                 public_id = data.data.public_id;
                 filename = postFile.name;
                 filesize = data.data.filesize
+                file_type = data.data.file_type;
             }
             const sub_data = {
                 secure_url, public_id, content: generateHTMLString(postContent),
-                filename, tags: selected, title, filesize
+                filename, tags: selected, title, filesize, file_type
             }
+
             const contractInstance = await createContentCreatorContractInstance(contract.signer);
             // if user has not adjusted postDestination to Your feed then
             // if we are from community page, postDestination will be community name
             // so use community id, but if user has changed its destination to feed
             // then community_id argument should be 0
+            const cnt_id = await contractInstance.getDraft();
 
             // %x2 rep comma ','
-            const stringifiedData = `[secure_url=${sub_data.secure_url}%x2public_id=${sub_data.public_id}%x2content=${sub_data.content}%x2filename=${sub_data.filename}%x2tags=[${sub_data.tags}]%x2title=${sub_data.title}%x2filesize=${sub_data.filesize}]`;
+            const stringifiedData = `[secure_url=${sub_data.secure_url}%x2public_id=${sub_data.public_id}%x2content=${sub_data.content}%x2filename=${sub_data.filename}%x2tags=[${sub_data.tags}]%x2title=${sub_data.title}%x2file_type=${sub_data.file_type}%x2filesize=${sub_data.filesize}]`;
             await contractInstance.addContent(
                 stringifiedData, 
                 '', 
                 postDestination === 'Your feed' ? 0 : community_id || 0
             );
-            const content_id = await contractInstance.getDraft();
 
-            // const contentContractInstance = await createContentContractInstance(contract.signer);
-            // const resp = await contentContractInstance.getContent(content_id);
-            // console.log('new content data =>', resp, typeof resp);
-            // const res = parseContentData(resp);
+            let content_id = cnt_id;
+
+            while(content_id == cnt_id) {
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+                content_id = await contractInstance.getDraft();
+            }
 
             const cmmty_id = postDestination === 'Your feed' ? 0 : community_id || 0;
             const date = Math.floor(new Date().getTime() / 1000);
 
-            const duplicate_contentData = `{"content_id":"${content_id+1n+''}","author":"${contract.address}","sub_data":"${stringifiedData}","content":"","community_id":"${cmmty_id}","verified":false,"timestamp":${date}}`;
+            const duplicate_contentData = `{"content_id":"${content_id+''}","author":"${contract.address}","sub_data":"${stringifiedData}","content":"","community_id":"${cmmty_id}","verified":false,"timestamp":${date}}`;
 
             const res = parseContentData(duplicate_contentData);
 
-            console.log('parsed new content data =>', res);
             const userContractInstance = await createUserContractInstance(contract.signer);
             const author = await userContractInstance.getUsername(res.author);
+
+            const votesContractInstance = await createVotesContractInstance(contract.signer);
+            setMessageFn(setMessageData, { status: 'success', message: 'Now voting on post...' });
+            await votesContractInstance.voteContent((cmmty_id)-0, bigIntAmount, (content_id+'')-0, 1);
+
+            // do not try to set wallet data on backend because voteContent already does that
+            // only just set the redux state for future use
+            const new_wallet_amt = subtractBigDecimals(wallet.actualAmount, bigIntAmount);
+            const resAmt = getTokenAmount(new_wallet_amt);
+            setWalletData({ amount: resAmt, actualAmount: resAmt });
 
             if(postDestination === 'Your feed') postContentData({ ...res, author });
             else setFeeds([{ ...res, author }, ...feeds]);
 
             setMessageFn(setMessageData, { status: 'success', message: 'Post sent successfully.' });
+            sendLoadingRef.current = false;
             closeModal(); 
         } catch(err) {
-            console.log(err);
             setSendLoading(false);
+            sendLoadingRef.current = false;
             setMessageFn(setMessageData, { status: 'error', message: 'Error sending your post. Retry.' });
         }
     };
@@ -224,6 +264,12 @@ const CommunityPostModal = ({ closeModal, destination, community_id, setFeeds, f
                         <input placeholder="Enter a title" required
                         onChange={(e) => setTitle(e.target.value)} />
                     </div>
+
+                    <div className="pMc-field stake-pMc-field">
+                        <label>Amount to stake on this post {wallet.amount ? `(bal. ${wallet.amount + ' '+ wallet.symbol})` : ''}</label>
+                        <input placeholder="Enter an amount (not more than 10 digits)" required type="number"
+                        onChange={(e) => setStake(e.target.value)} />
+                    </div>
                     
                     <div className="pMc-field">
                         <label>{`Add File (either image or document file not more than ${MB}MB in size)`}</label>
@@ -261,8 +307,8 @@ const CommunityPostModal = ({ closeModal, destination, community_id, setFeeds, f
                     </div>
 
                     <div className="pMc-field">
-                        <label>Post category</label>
-                        <MultiChoiceInputWithDropdown class_name={"pMc-select"} placeholder={'Select the categories'}
+                        <label>Post tags</label>
+                        <MultiChoiceInputWithDropdown class_name={"pMc-select"} placeholder={'Select the tags'}
                         dropdownLists={options} selected={selected} selectFn={selectFn} height={200} />
 
                     </div>

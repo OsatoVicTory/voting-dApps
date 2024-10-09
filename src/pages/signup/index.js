@@ -3,14 +3,16 @@ import MultiChoiceInputWithDropdown from '../../component/multiChoice';
 import banner from '../../images/phone_banner.png';
 import logo from '../../images/idonk_no_bg_1.png';
 import './styles.css';
-import { createSafeUserRegistrationContractInstance, createUserContractInstance } from '../../services/contracts_creators';
+import { createERC20ContractInstance, createSafeUserRegistrationContractInstance, createUserContractInstance } from '../../services/contracts_creators';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '../../store/user';
 import { bindActionCreators } from 'redux';
 import { useNavigate } from 'react-router-dom';
-import { decodeData, encodeToByte, setMessageFn } from '../../utils';
+import { decodeData, encodeToByte, getTokenAmount, setMessageFn } from '../../utils';
 import { setMessage } from '../../store/message';
-import { SiAwselasticloadbalancing } from 'react-icons/si';
+import { setWallet } from '../../store/wallet';
+import { setContract } from '../../store/contract';
+import { BrowserProvider } from 'ethers';
 
 const Signup = () => {
     const lists = ['Crypto', 'Block Chain', 'Web3', 'Ethereum', 'Arbitrum', 'NFTs', 'Sepolia', 'Testnets'];
@@ -20,6 +22,8 @@ const Signup = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const setUserData = bindActionCreators(setUser, dispatch);
+    const setContractData = bindActionCreators(setContract, dispatch);
+    const setWalletData = bindActionCreators(setWallet, dispatch);
     const setMessageData = bindActionCreators(setMessage, dispatch);
 
     function selectFn(values) {
@@ -37,6 +41,8 @@ const Signup = () => {
 
         setLoading(true);
         try {
+            let signer_val = contract.signer;
+            let address = contract.address;
             const data = encodeToByte(
                 JSON.stringify({ 
                     email: user.email, 
@@ -44,24 +50,47 @@ const Signup = () => {
                     interests: user.interests 
                 })
             );
-            const userContractInstance = await createUserContractInstance(contract.signer);
+            if(!contract.signer) {
+                if(!window.ethereum) {
+                    setLoading(false);
+                    setMessageFn(setMessageData, { status: 'error', message: 'No wallet found. Install metamask wallet.'});
+                    return;
+                }
+
+                const provider = await new BrowserProvider(window.ethereum);
+                const signer = await provider.getSigner();
+                const signerAddress = await signer_val.getAddress();
+                address = signerAddress;
+                signer_val = signer;
+                setContractData({ signer, address: signerAddress });
+            }
+            const userContractInstance = await createUserContractInstance(signer_val);
             const nameTaken = await userContractInstance.nameTaken(user.name);
             if(nameTaken) {
-                console.log('Name taken');
                 setLoading(false);
-                return setMessageFn(setMessageData, { status: 'error', message: 'Name is already taken. Choose another please.'});
+                setMessageFn(setMessageData, { status: 'error', message: 'Name is already taken. Choose another please.'});
+                return;
             }
-            const safeUserRegContractInstance = await createSafeUserRegistrationContractInstance(contract.signer);
+            const safeUserRegContractInstance = await createSafeUserRegistrationContractInstance(signer_val);
             await userContractInstance.registerUser(`${user.name}`, data);
             await safeUserRegContractInstance.registerUser();
             const res = await userContractInstance.getMetaData();
             const userRes = JSON.parse(res);
             const metaData = decodeData(userRes.metaData, 'bytes');
+
+            const walletContractInstance = await createERC20ContractInstance(signer_val);
+            const resWallet = await walletContractInstance.balanceOf(address);
+            const name = await walletContractInstance.name();
+            const symbol = await walletContractInstance.symbol();
+            const decimals = await walletContractInstance.decimals();
+            const resAmt = getTokenAmount(resWallet);
+            
+            // decimals is BigInt
+            setWalletData({ amount: resAmt, symbol, decimals, name, actualAmount: resWallet });
             setUserData({ ...userRes, ...metaData });
             navigate('/app');
             setLoading(false);
         } catch (err) {
-            console.log(err);
             setLoading(false);
             setMessageFn(setMessageData, { status: 'error', message: 'There was an error. Check internet and try again.'});
         }

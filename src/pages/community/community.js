@@ -44,13 +44,14 @@ const CommunityPage = ({ toggleSidebar }) => {
         setError(false);
         const communityContractInstance = await createCommunitiesContractInstance(contract.signer);
         const isMember = await communityContractInstance.isAMember(id-0, contract.address);
+        
         // use cmt below cus setCommunity might have not updated commuity data by now
         setCommunity({ ...cmtRef.current, isMember });
         const contentContractInstance = await createContentContractInstance(contract.signer);
         const res = await contentContractInstance.getContentList(id-0);
         const data = [];
         const userContractInstance = await createUserContractInstance(contract.signer);
-        for(const response of Array.from(res)) {
+        for(const response of Array.from(res).reverse()) {
             if(!inProductionContent(response)) continue;
             const value = parseContentData(response);
             const author = await userContractInstance.getUsername(value.author);
@@ -93,6 +94,7 @@ const CommunityPage = ({ toggleSidebar }) => {
             if(!cmt) fetchCommunity();
             else {
                 console.log('communty data', cmt);
+                cmtRef.current = cmt;
                 setCommunity(cmt);
                 setLoading(true);
                 fetchFeeds().catch(err => setError(true));
@@ -143,10 +145,10 @@ const CommunityPage = ({ toggleSidebar }) => {
                         <div className='ch-img'></div>
                         <h3>{community.name}</h3>
                         <div className='ch-right'>
-                            <div className='chr cursor' onClick={() => setModal('create')}>
+                            {community.isMember && <div className='chr cursor' onClick={() => setModal('create')}>
                                 <FaPlus className='chr-icon' />
                                 <span>Create Post</span>
-                            </div>
+                            </div>}
                             {
                                 loading ? <div className='member-loading'><SkeletonLoader /></div> :
                                 community.isMember ? 

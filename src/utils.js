@@ -1,7 +1,12 @@
 import { convertFromRaw } from "draft-js";
 import { stateToHTML } from "draft-js-export-html";
 import BigDecimal from 'js-big-decimal';
-import { REWARDS_THRESHOLD } from "./config";
+import { BAD_INDEX, REWARDS_THRESHOLD } from "./config";
+
+export const scrolledToBottom = (e, scrollFn) => {
+    const { scrollTop, scrollHeight, offsetHeight } = e.target;
+    if(scrollTop >= scrollHeight - offsetHeight - 1) scrollFn();
+};
 
 export const setMessageFn = (setter, obj) => {
     setter(obj);
@@ -31,7 +36,7 @@ export const getDate = (date, ethereum_type = false) => {
 
 export const inProductionContent = (val) => {
     const IN_PRODUCTION = false;
-    if(!IN_PRODUCTION && val.split(',')[0].split(':')[1] < 12) return false;
+    if(!IN_PRODUCTION && val.split(',')[0].split(':')[1] < BAD_INDEX) return false;
     else return true;
 };
 
@@ -135,7 +140,7 @@ export const delay = async (ms=3000) => {
 };
 
 export const getTokenAmount = (value, decimals=10000000000n) => {
-    const n1 = new BigDecimal(value);
+    const n1 = new BigDecimal(value+'');
     const n2 = new BigDecimal(decimals+'');
     const result = BigDecimal.stripTrailingZero((n1.divide(n2)).getValue());
     return String(result);
@@ -146,6 +151,20 @@ export const multiplyBigDecimals = (value, mul=10000000000n) => {
     const n2 = new BigDecimal(mul+'');
     const result = BigDecimal.stripTrailingZero((n1.multiply(n2)).getValue());
     return Number(result);
+};
+
+export const addBigDecimals = (value, amt) => {
+    const n1 = new BigDecimal(value+'');
+    const n2 = new BigDecimal(amt+'');
+    const result = (n1.add(n2)).getValue();
+    return result;
+};
+
+export const subtractBigDecimals = (value, amt) => {
+    const n1 = new BigDecimal(value+'');
+    const n2 = new BigDecimal(amt+'');
+    const result = (n1.subtract(n2)).getValue();
+    return result;
 };
 
 export const rewardableThreshold = (userVote, totalVotes) => {

@@ -22,9 +22,9 @@ const ContentFile = ({ data }) => {
     };
 
     return (
-        <div className={`contentFile ${data.file_type === 'image' ? 'cf-image' : 'cf-file'}`}>
+        <div className={`contentFile ${data.file_type === 'image' || data.filename.endsWith('jpg') ? 'cf-image' : 'cf-file'}`}>
             {
-                data.file_type === 'image' ?
+                data.file_type === 'image' || data.filename.endsWith('jpg') ?
                 <img src={data.secure_url} alt={`file ${data._id}`} /> :
                 <div className='cf-fileDoc-wrapper cursor'>
                     <div className='cf-fileDoc'>

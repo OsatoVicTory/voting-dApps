@@ -11,6 +11,7 @@ import { bindActionCreators } from "redux";
 import SkeletonLoader from "../../component/skeleton";
 import UserPageHome from "./userPageHome";
 import UserPageContent from "./userPageContent";
+import { BAD_INDEX } from "../../config";
 
 
 const ProfileHomePage = () => {
@@ -45,25 +46,28 @@ const ProfileHomePage = () => {
         const meta_data = await contentContractInstance.getProfile();
         setUserMetaData(JSON.parse(meta_data));
         const res = await contentContractInstance.getContentList(0);
-        console.log('content lists =>', res, Array.from(res));
         const data = [];
-        for(const response of Array.from(res)) {
+        for(const response of Array.from(res).reverse()) {
             if(!inProductionContent(response)) continue;
             const value = parseContentData(response);
             if(value.author === contract.address) {
+                const author = await userContractInstance.getUsername(value.author);
                 const total_votes = await contentContractInstance.getTotalVotes(value.content_id-0);
-                data.push({ ...value, author: user.name, votes: total_votes });
+                data.push({ ...value, author, votes: total_votes });
             }
         }
         setFeeds(data);
+        setFeedsData(data);
         const stakes = await contentContractInstance.getMyStakes();
-        console.log('stakes =>', stakes);
+        console.log('stakes =>', stakes, Array.from(stakes)[0]);
         const stk_data = [];
-        for(const stakeId of Array.from(stakes)) {
-            const stake_id = decodeUint8(stakeId);
-            const resp = await contentContractInstance.getContent(stakeId);
+        for(const stakeId of Array.from(stakes).reverse()) {
+            const stake_id = stakeId +'';
+            if(stake_id < BAD_INDEX) continue;
+            const resp = parseContentData(await contentContractInstance.getContent(stake_id-0));
+            // resp.community_id
             const author = await userContractInstance.getUsername(resp.author);
-            const total_votes = await contentContractInstance.getTotalVotes(stake_id);
+            const total_votes = await contentContractInstance.getTotalVotes(stake_id-0);
             stk_data.push({ ...resp, author, votes: total_votes });
         }
         setVotes(stk_data);
@@ -78,7 +82,7 @@ const ProfileHomePage = () => {
         // still fetch in case a new content has been created
         try {
             if(!user.name) {
-                const userContractInstance = await createUserContractInstance(contract.signer_val);
+                const userContractInstance = await createUserContractInstance(contract.signer);
                 const res = await userContractInstance.getMetaData();
                 const userRes = JSON.parse(res);
                 const metaData = decodeData(userRes.metaData, 'bytes');

@@ -40,8 +40,7 @@ const Contentlist = ({ openModal }) => {
             const contractInstance = await createContentContractInstance(contract.signer);
             const userContractInstance = await createUserContractInstance(contract.signer);
             // const OK = false;
-            const res = Array.from(await contractInstance.getContentList(0));
-            console.log('contents lists data =>', res);
+            const res = Array.from(await contractInstance.getContentList(0)).reverse();
             const data = [];
             for(let val of res) {
                 if(!inProductionContent(val)) continue;

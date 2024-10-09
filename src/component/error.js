@@ -6,10 +6,11 @@ import { bindActionCreators } from 'redux';
 import { setContract } from '../store/contract';
 import { BrowserProvider } from 'ethers';
 import { setMessage } from '../store/message';
-import { decodeData, setMessageFn } from '../utils';
-import { createUserContractInstance } from '../services/contracts_creators';
+import { decodeData, getTokenAmount, setMessageFn } from '../utils';
+import { createERC20ContractInstance, createUserContractInstance } from '../services/contracts_creators';
 import { useNavigate } from 'react-router-dom';
 import { setUser } from '../store/user';
+import { setWallet } from '../store/wallet';
 
 const ErrorPage = ({ text, refreshFn, important, btnName, setContractRef }) => {
 
@@ -20,15 +21,17 @@ const ErrorPage = ({ text, refreshFn, important, btnName, setContractRef }) => {
     const navigate = useNavigate();
     const setContractData = bindActionCreators(setContract, dispatch);
     const setUserData = bindActionCreators(setUser, dispatch);
+    const setWalletData = bindActionCreators(setWallet, dispatch);
     const setMessageData = bindActionCreators(setMessage, dispatch);
 
     const fireFn = async () => {
         if(loading) return;
         
-        setLoading(true);
         try {
             // until contract state has been updated before we now fire the refresh
             if(contract.signer) return refreshFn();
+            
+            setLoading(true);
 
             if(!contract.signer) {
         
@@ -54,6 +57,16 @@ const ErrorPage = ({ text, refreshFn, important, btnName, setContractRef }) => {
                     const res = await userContractInstance.getMetaData();
                     const userRes = JSON.parse(res);
                     const metaData = decodeData(userRes.metaData, 'bytes');
+
+                    const walletContractInstance = await createERC20ContractInstance(signer_val);
+                    const resWallet = await walletContractInstance.balanceOf(signerAddress);
+                    const name = await walletContractInstance.name();
+                    const symbol = await walletContractInstance.symbol();
+                    const decimals = await walletContractInstance.decimals();
+                    const resAmt = getTokenAmount(resWallet);
+                    
+                    // decimals is BigInt
+                    setWalletData({ amount: resAmt, symbol, decimals, name, actualAmount: resWallet });
                     setUserData({ ...userRes, ...metaData });
                     setMessageFn(setMessageData, { status: 'success', message: 'Welcome '+ userRes.name });
                 }

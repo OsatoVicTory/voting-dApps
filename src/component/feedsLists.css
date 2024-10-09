@@ -16,6 +16,16 @@
 .feed-li > div {
     width: 100%;
 }
+.community-linkup {
+    width: max-content;
+    padding: 3px 9px;
+    padding-bottom: 6px;
+    font-size: 13.5px;
+    border-radius: 9px;
+    border: 1px solid var(--bordergrey);
+    color: var(--grey);
+    margin-left: 12px;
+}
 .f-l-t-img {
     width: 21px;
     height: 21px;

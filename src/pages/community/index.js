@@ -20,6 +20,7 @@ const Community = ({ toggleSidebar }) => {
     const communities = useSelector(state => state.community);
 
     useEffect(() => {
+        // fetch communities data if no session for community
         if(search) {
             const res = [];
             const srch = search.toLowerCase();
@@ -69,7 +70,7 @@ const Community = ({ toggleSidebar }) => {
                                 navigate(`/app/community/page/${val.community_id}`);
                             }}>
                                 <span className='hsdl-title'>
-                                    Community Name: <span>{val.sub_data.name}</span>
+                                    Community Name: <span>{val.name}</span>
                                 </span>
                                 <span className='hsdl-time'>
                                     Created: {formatDate(val.created_at, true)}

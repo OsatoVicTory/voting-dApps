@@ -19,6 +19,7 @@ import { setMessage } from '../../store/message';
 import NoData from '../../component/nodata';
 import { IoIosCopy } from 'react-icons/io';
 import { FRONTEND_URL } from '../../config';
+import { useNavigate } from 'react-router-dom';
 
 const UserPageContent = ({ feeds, error, contentId, setContentId }) => {
 
@@ -33,8 +34,10 @@ const UserPageContent = ({ feeds, error, contentId, setContentId }) => {
     const textRef = useRef();
     
     const contract = useSelector(state => state.contract);
+    const user = useSelector(state => state.user);
 
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const setMessageData = bindActionCreators(setMessage, dispatch);
 
     const content = feeds.find(val => val.content_id == contentId);
@@ -58,7 +61,7 @@ const UserPageContent = ({ feeds, error, contentId, setContentId }) => {
             const userContractInstance = await createUserContractInstance(contract.signer);
             const votes_data = await contentContractInstance.getVoters(contentId-0);
             const data = [];
-            for(const vote_data of Array.from(votes_data)) {
+            for(const vote_data of Array.from(votes_data).reverse()) {
                 const vote = JSON.parse(vote_data);
                 if(vote.voters_id === contract.address) {
                     setUserVoteType(vote.vote);
@@ -70,8 +73,8 @@ const UserPageContent = ({ feeds, error, contentId, setContentId }) => {
             const is_rewarded = await rewardsContractInstance.isRewarded(contentId-0);
             const vote_type = await rewardsContractInstance.myVote(contentId-0);
             const total_votes = await contentContractInstance.getTotalVotes(contentId-0);
-            setTotalVotes(total_votes);
-            setUserVoteType(vote_type);
+            setTotalVotes(total_votes - 0);
+            setUserVoteType(vote_type - 0);
             setIsRewarded(is_rewarded);
             setVoters(data);
             setLoading(false);
@@ -130,17 +133,19 @@ const UserPageContent = ({ feeds, error, contentId, setContentId }) => {
             await navigator.clipboard.writeText(`${FRONTEND_URL}/app/post/${contentId}`);
             setMessageFn(setMessageData, { status: 'success', message: 'Link copied.' });
         } catch (err) {
-            setMessageFn(setMessageData, { status: 'success', message: 'Failed to copy.' });
+            setMessageFn(setMessageData, { status: 'error', message: 'Failed to copy.' });
         }
     };
 
     const setUserVoteTypeFn = async (vote_data, type) => {
         try {
-            setVoters([vote_data, ...voters]);
-            setUserVoteType(type);
-            setTotalVotes(totalVotes + 1);
+            setLoading(true);
+            setVoters([{ ...vote_data, name: user.name }, ...voters]);
+            setUserVoteType(type-0);
+            setTotalVotes((totalVotes-0) + 1);
+            setLoading(false);
         } catch (err) {
-            setVotesLoading(false);
+            setLoading(false);
             setMessageFn(setMessageData, { status: 'error', message: 'There was an Error. Check your internet.' });
         }
     };
@@ -159,6 +164,11 @@ const UserPageContent = ({ feeds, error, contentId, setContentId }) => {
 
                 <div className='pc-main-p'>
                     <span>{`Posted ${formatDate(content.timestamp, true)}`}</span>
+
+                    {content.community_id && <div className='pc-main-community cursor'
+                    onClick={() => navigate(`/app/community/page/${content.community_id}/${content.content_id}`)}>
+                        From a Community
+                    </div>}
 
                     {showRewardButton && <div className='post__Reward'>
                         <div className='claim-post-reward cursor' onClick={claimReward}>
@@ -208,6 +218,7 @@ const UserPageContent = ({ feeds, error, contentId, setContentId }) => {
             {/* Add loading spinner here if we want to add a div to fetch users that staked/voted on this post */}
             {/* Hasn't been styled yet */}
             <div className='content__Voters'>
+                <h3>Voters</h3>
                 {
                     loading ?
                     <div className='voters__Loading'>

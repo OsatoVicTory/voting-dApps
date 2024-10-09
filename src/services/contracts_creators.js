@@ -15,16 +15,16 @@ import voters from '../contractAbi/voters/contarctAbi.json';
 
 // const USER_METADATA_ADDRESS = "0xd427860021b153fbe4ba34272be3c4597ed0898c";
 
-const USER_METADATA_ADDRESS = "0x1d2fcfb0bdb090d84e8f31b3d223a83ce22c01ab";
-const SAFE_USER_REGISTRATION_ADDRESS = "0xf34f1dd15273f31faaae8e54385178ff3b43cae1";
-const USER_PROFILES_ADDRESS = "0x3cedbe0702cad8913542a38060dedb97462df3ec";
-const REWARDS_ADDRESS = "0x7aae818cd315ac78ec61ad904f07745648c86381";
-const CONTENT_CREATOR_ADDRESS = "0x94f4ce2c5ad6d01138859bebcf9e4bb6c2cb5ad0";
-const CONTENT_ADDRESS = "0x1a7bb16a82bf54c360f27f68aae92bccf941e9b1";
-const COMMUNITIES_ADDRESS = "0xfa0d22b46dcc14f3dafde41bcb14344192463e2e";
-const VOTES_ADDRESS = "0x35eaaa42db35f8be39470e76b4495d4bdb890930";
-const VOTERS_ADDRESS = "0x7be071b751735cef17c6559a8b8192d6d0800bd9";
-const ERC20_ADDRESS = "0xf43980d57ae6d79d56f069cdaa351395610381ba";
+export const USER_METADATA_ADDRESS = "0x1d2fcfb0bdb090d84e8f31b3d223a83ce22c01ab";
+export const SAFE_USER_REGISTRATION_ADDRESS = "0xf34f1dd15273f31faaae8e54385178ff3b43cae1";
+export const USER_PROFILES_ADDRESS = "0x3cedbe0702cad8913542a38060dedb97462df3ec";
+export const REWARDS_ADDRESS = "0x7aae818cd315ac78ec61ad904f07745648c86381";
+export const CONTENT_CREATOR_ADDRESS = "0x94f4ce2c5ad6d01138859bebcf9e4bb6c2cb5ad0";
+export const CONTENT_ADDRESS = "0x1a7bb16a82bf54c360f27f68aae92bccf941e9b1";
+export const COMMUNITIES_ADDRESS = "0xfa0d22b46dcc14f3dafde41bcb14344192463e2e";
+export const VOTES_ADDRESS = "0x35eaaa42db35f8be39470e76b4495d4bdb890930";
+export const VOTERS_ADDRESS = "0x7be071b751735cef17c6559a8b8192d6d0800bd9";
+export const ERC20_ADDRESS = "0xf43980d57ae6d79d56f069cdaa351395610381ba";
 
 export const parseBigInt = (uint8) => {
     return ethers.getBigInt(uint8, "myBigInt");

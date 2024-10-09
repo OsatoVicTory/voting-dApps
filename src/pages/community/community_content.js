@@ -38,6 +38,7 @@ const CommunityContent = ({ feeds, error }) => {
     const { id, content_id } = useParams();
     
     const contract = useSelector(state => state.contract);
+    const user = useSelector(state => state.user);
 
     const dispatch = useDispatch();
     const setMessageData = bindActionCreators(setMessage, dispatch);
@@ -65,7 +66,7 @@ const CommunityContent = ({ feeds, error }) => {
             const votes_data = await contentContractInstance.getVoters(content_id-0);
             console.log('vote data =>', votes_data);
             const data = [];
-            for(const vote_data of Array.from(votes_data)) {
+            for(const vote_data of Array.from(votes_data).reverse()) {
                 const vote = JSON.parse(vote_data);
                 if(vote.voters_id === contract.address) {
                     setUserVoteType(vote.vote);
@@ -74,11 +75,11 @@ const CommunityContent = ({ feeds, error }) => {
                 data.push({ ...vote, name: author });
             }
             const rewardsContractInstance = await createRewardsContractInstance(contract.signer);
-            const is_rewarded = await rewardsContractInstance.isRewarded(id-0);
-            const vote_type = await rewardsContractInstance.myVote(id-0);
-            const total_votes = await contentContractInstance.getTotalVotes(id-0);
-            setTotalVotes(total_votes);
-            setUserVoteType(vote_type);
+            const is_rewarded = await rewardsContractInstance.isRewarded(content_id-0);
+            const vote_type = await rewardsContractInstance.myVote(content_id-0);
+            const total_votes = await contentContractInstance.getTotalVotes(content_id-0);
+            setTotalVotes(total_votes - 0);
+            setUserVoteType(vote_type - 0);
             setIsRewarded(is_rewarded);
             setVoters(data);
             setLoading(false);
@@ -118,7 +119,7 @@ const CommunityContent = ({ feeds, error }) => {
             const can_be_rewarded = await rewardsContractInstance.canBeRewarded(content_id-0);
             if(can_be_rewarded) {
                 setClaiming(true);
-                await rewardsContractInstance.getReward(id-0);
+                await rewardsContractInstance.getReward(content_id-0);
                 setIsRewarded(true);
                 setMessageFn(setMessageData, { status: 'success', message: 'Claimed your reward successfully.' });
                 setClaiming(false);
@@ -145,17 +146,19 @@ const CommunityContent = ({ feeds, error }) => {
             await navigator.clipboard.writeText(`${FRONTEND_URL}/app/community/page/${id}/${content_id}`);
             setMessageFn(setMessageData, { status: 'success', message: 'Link copied.' });
         } catch (err) {
-            setMessageFn(setMessageData, { status: 'success', message: 'Failed to copy.' });
+            setMessageFn(setMessageData, { status: 'error', message: 'Failed to copy.' });
         }
     };
 
     const setUserVoteTypeFn = async (vote_data, type) => {
         try {
-            setVoters([vote_data, ...voters]);
-            setUserVoteType(type);
-            setTotalVotes(totalVotes + 1);
+            setLoading(true);
+            setVoters([{ ...vote_data, name: user.name }, ...voters]);
+            setUserVoteType(type-0);
+            setTotalVotes((totalVotes-0) + 1);
+            setLoading(false);
         } catch (err) {
-            setVotesLoading(false);
+            setLoading(false);
             setMessageFn(setMessageData, { status: 'error', message: 'There was an Error. Check your internet.' });
         }
     };
@@ -223,6 +226,7 @@ const CommunityContent = ({ feeds, error }) => {
             {/* Add loading spinner here if we want to add a div to fetch users that staked/voted on this post */}
             {/* Hasn't been styled yet */}
             <div className='content__Voters'>
+                <h3>Voters</h3>
                 {
                     loading ?
                     <div className='voters__Loading'>
