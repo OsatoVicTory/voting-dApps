@@ -40,7 +40,7 @@ export const getDate = (date, ethereum_type = false) => {
 };
 
 export const inProductionContent = (val) => {
-    const IN_PRODUCTION = false;
+    const IN_PRODUCTION = true;
     if(!IN_PRODUCTION && val.split(',')[0].split(':')[1] < BAD_INDEX) return false;
     else return true;
 };
