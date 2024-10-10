@@ -14,13 +14,15 @@ export const CONTRACT_ADDRESS = "0xf43980d57ae6d79d56f069cdaa351395610381ba";
 
 export const SERVER_URL = 'https://stylus-web3-hackathon-backend.onrender.com';
 
-export const FRONTEND_URL = 'http://localhost:3000';
+export const FRONTEND_URL = 'https://idonk.netlify.app';
 
 // can be updated to any number on production launch
 export const REWARDS_THRESHOLD = 2;
 
-export const COMMUNITY_TOPICS = ['Crypto', 'Block Chain', 'Web3', 'Ethereum', 'Arbitrum', 'NFTs', 'Sepolia', 'Testnets'];
+export const COMMUNITY_TOPICS = ['Block Chain & Web3', 'Music', 'Politics', 'Programming', 'Arts and Culture', 'Education', 'Science and tech'];
 
-export const POST_TAGS = ['Javascript', 'Python', 'Typescript', 'Nodejs', 'Ethereum'];
+export const POST_TAGS = [
+    'Block Chain & Web3', 'Music', 'Politics', 'Programming', 'Arts and Culture', 'Education', 'Science and tech'
+];
 
-export const USER_INTERESTS = ['Crypto', 'Block Chain', 'Web3', 'Ethereum', 'Arbitrum', 'NFTs', 'Sepolia', 'Testnets'];
+export const USER_INTERESTS = ['Block Chain & Web3', 'Music', 'Politics', 'Programming', 'Arts and Culture', 'Education', 'Science and tech', 'Sports'];
