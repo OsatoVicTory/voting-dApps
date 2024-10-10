@@ -5,7 +5,7 @@ import { AiOutlineClose } from 'react-icons/ai';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import StakeContentModal from './stakeModal';
 import { useDispatch, useSelector } from 'react-redux';
-import { formatDate, getTokenAmount, parseContentData, rewardableThreshold, setMessageFn } from '../../utils';
+import { formatDate, getTokenAmount, parseContentData, ProfileAvatar, rewardableThreshold, setMessageFn } from '../../utils';
 import ContentFile from '../../component/contentFile';
 import SkeletonLoader from '../../component/skeleton';
 import { 
@@ -63,7 +63,6 @@ const Content = () => {
     const fetchVoters = async (contentContractInstance, userContractInstance) => {
         setVotesLoading(true);
         const votes_data = await contentContractInstance.getVoters(id-0);
-        console.log('vote data =>', votes_data);
         const data = [];
         for(const vote_data of Array.from(votes_data).reverse()) {
             const vote = JSON.parse(vote_data);
@@ -74,7 +73,6 @@ const Content = () => {
         const is_rewarded = await rewardsContractInstance.isRewarded(id-0);
         const vote_type = await rewardsContractInstance.myVote(id-0);
         const total_votes = await contentContractInstance.getTotalVotes(id-0);
-        console.log('rewarded, vote count', is_rewarded, vote_type);
         setTotalVotes(total_votes - 0);
         setUserVoteType(vote_type - 0);
         setIsRewarded(is_rewarded);
@@ -104,7 +102,6 @@ const Content = () => {
             setLoading(false); 
             await fetchVoters(contentContractInstance, userContractInstance);
         } catch (err) {
-            console.log(err);
             setError(true);
             setLoading(false); 
             setVotesLoading(false);
@@ -143,10 +140,13 @@ const Content = () => {
                 setMessageFn(setMessageData, { status: 'success', message: 'Claimed your reward successfully.' });
                 setClaiming(false);
             } else {
-                setMessageFn(setMessageData, { status: 'error', message: 'Sorry claiming is currently in cool down period.' });
+                setClaiming(false);
+                setMessageFn(setMessageData, { 
+                    status: 'error', 
+                    message: 'Sorry claiming is currently in cool down period. Try again in next 5 mins.' 
+                });
             }
         } catch (err) {
-            console.log(err);
             setClaiming(false);
             setMessageFn(setMessageData, { status: 'error', message: 'There was an Error. Check internet and try again.' });
         }
@@ -256,7 +256,7 @@ const Content = () => {
                         </div>
                     </div>
                     <div className="pc-details">
-                        <div className="pd-img">{loading ? <SkeletonLoader /> : ''}</div>
+                        <div className="pd-img">{loading ? <SkeletonLoader /> : <ProfileAvatar />}</div>
                         {
                             loading ? 
                             <div className='pd-txt'>

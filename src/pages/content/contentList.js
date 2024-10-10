@@ -52,7 +52,6 @@ const Contentlist = ({ openModal }) => {
             if(!sessions.contents) setSessionsData({ contents: true });
             setLoading(false); 
         } catch (err) {
-            console.log(err);
             setError(true);
             setLoading(false); 
         }

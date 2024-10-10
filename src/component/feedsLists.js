@@ -15,7 +15,7 @@ const FeedsLists = ({ feeds, navToContentPage, community, linkCopyable }) => {
                         <span className='f-l-t-poster'>{val.author}</span>
                         <span className='f-l-t-time'>{`Posted ${formatDate(val.timestamp, true)}`}</span>
                         {/* add something for community, only for votes in profile home page */}
-                        {(community && val.community_id) && <div className='community-linkup'>
+                        {(community && val.community_id > 0) && <div className='community-linkup'>
                             For community
                         </div>}
                     </div>

@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import './create.css';
 import { AiOutlineClose } from 'react-icons/ai';
-import { MdArrowBack, MdOutlineArrowDropDown, MdSend } from "react-icons/md";
+import { MdArrowBack, MdEdit, MdOutlineArrowDropDown, MdSend } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
 import MultiChoiceInputWithDropdown from '../../component/multiChoice';
 import { createCommunitiesContractInstance } from '../../services/contracts_creators';
@@ -10,20 +10,23 @@ import { setMessage } from '../../store/message';
 import { addCommunity } from '../../store/community';
 import { useDispatch, useSelector } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { SiMetrodelaciudaddemexico } from 'react-icons/si';
+import { COMMUNITY_TOPICS, MB } from '../../config';
+import { sendProfileFile } from '../../services';
 
 const CommunityCreate = ({ closeModal }) => {
 
-    const topicLists = ['Crypto', 'Block Chain', 'Web3', 'Ethereum', 'Arbitrum', 'NFTs', 'Sepolia', 'Testnets'];
-    const userLists = Array(10).fill('Ethereum');
-    // const [data, setData] = useState({ topics: [], admins: [] });
+    const topicLists = COMMUNITY_TOPICS;
     const [data, setData] = useState({ topics: [] });
     const [dropdown, setDropdown] = useState(null);
     const [loading, setLoading] = useState(false);
     const [aux, setAux] = useState('');
+    const [profileFile, setProfileFile] = useState({});
+    const [bannerFile, setBannerFile] = useState({});
+
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const contract = useSelector(state => state.contract);
+    const user = useSelector(state => state.user);
     const addCommunityData = bindActionCreators(addCommunity, dispatch);
     const setMessageData = bindActionCreators(setMessage, dispatch);
 
@@ -43,6 +46,20 @@ const CommunityCreate = ({ closeModal }) => {
         setData({ ...data, [name]: value });
     };
 
+    const uploadCommunityFile = async (req_data) => {
+        if(req_data.name) {
+            const formData = new FormData();
+            formData.append('file', req_data);
+            formData.append('filename', req_data.name);
+
+            const resp_data = await sendProfileFile(formData);
+            const secure_url = resp_data.data.data.secure_url;
+            const public_id = resp_data.data.data.public_id;
+            return { secure_url, public_id };
+        }
+        return null;
+    };
+
     const handleCreate = async () => {
         if(loading) return;
 
@@ -54,7 +71,30 @@ const CommunityCreate = ({ closeModal }) => {
                 setLoading(false);
                 return setMessageFn(setMessageData, { status: 'error', message: 'Name is taken already. Choose another.'});
             }
-            const stringifiedData = `[name=${data.name}%x2niche=${data.niche}%x2topics=[${data.topics}]%x2description=${data.description}]`;
+            
+            const unFilled = Object.keys(data).find(key => !data[key]);
+            if(unFilled || data.topics.length === 0) {
+                setLoading(false);
+                return setMessageFn(setMessageData, { 
+                    status: 'error', 
+                    message: `Please fill the ${unFilled || 'topics'} form`
+                });
+            }
+            
+            if(!profileFile.name || !bannerFile.name) {
+                setLoading(false);
+                return setMessageFn(setMessageData, { 
+                    status: 'error', 
+                    message: `Please choose a ${!profileFile.name ? 'Profile' : 'Banner'} picture`
+                });
+            }
+            const profile = await uploadCommunityFile(profileFile);
+            const banner = await uploadCommunityFile(bannerFile);
+
+            const profileStr = `profile_url=${profile.secure_url}%x2profile_pubilc_id=${profile.public_id}`;
+            const str = `${profileStr}%x2banner_url=${banner.secure_url}%x2banner_public_id=${banner.public_id};`;
+
+            const stringifiedData = `[name=${data.name}%x2niche=${data.niche}%x2${str}%x2topics=[${data.topics}]%x2description=${data.description}]`;
             await communityContractInstance.createCommunity(data.name, stringifiedData);
 
             // just to pad and make data porpagated
@@ -62,19 +102,51 @@ const CommunityCreate = ({ closeModal }) => {
             const resp = `{"creator":"${contract.address}","name":"${data.name}","meta_data":"${stringifiedData}","numbers of members":"1","created_at":${date}}`;
             
             const community_id = await communityContractInstance.getLastIndex();
-            // console.log('community id', community_id);
-            // const res = await communityContractInstance.getCommunity(community_id);
-            console.log('community_id from getLastIndex =>', resp);
+            
             const communityData = parseCommunityData(resp);
-            addCommunityData({ ...communityData, community_id: community_id+1n+'' });
+            addCommunityData({ ...communityData, community_id: community_id+1n+'', creator: user.name, isMember: true });
             setLoading(false); 
             setMessageFn(setMessageData, { status: 'success', message: 'Community created successfully.' });
             closeModal();
         } catch (err) {
-            console.log(err);
             setLoading(false); 
             setMessageFn(setMessageData, { status: 'error', message: 'There was an error. Check internet and try again.'});
         }
+    };
+
+    useEffect(() => {
+        return () => {
+            if(profileFile.name) URL.revokeObjectURL(profileFile);
+            if(bannerFile.name) URL.revokeObjectURL(bannerFile);
+        };
+    }, []);
+
+    const profileURL = useMemo(() => {
+        if(profileFile.name) return URL.createObjectURL(profileFile);
+    }, [profileFile.name]);
+
+    const bannerURL = useMemo(() => {
+        if(bannerFile.name) return URL.createObjectURL(bannerFile);
+    }, [bannerFile.name]);
+
+    function handleProfileFileChange(e) {
+        if(profileFile.name) URL.revokeObjectURL(profileFile);
+        const file = e.target.files[0];
+        if(!file?.size) return;
+        if(file.size > (MB * 1024 * 1024)) {
+            return setMessageFn(setMessageData, { status: 'error', message: `File cannot be more than ${MB}MB` });
+        }
+        setProfileFile(file);
+    };
+    
+    function handleBannerFileChange(e) {
+        if(bannerFile.name) URL.revokeObjectURL(bannerFile);
+        const file = e.target.files[0];
+        if(!file?.size) return;
+        if(file.size > (MB * 1024 * 1024)) {
+            return setMessageFn(setMessageData, { status: 'error', message: `File cannot be more than ${MB}MB` });
+        }
+        setBannerFile(file);
     };
 
     return (
@@ -84,6 +156,39 @@ const CommunityCreate = ({ closeModal }) => {
                 <h1>Create Community</h1>
             </div>
             <div className='cmtc-fields'>
+
+                <div className="cmtc-field cmtc-file">
+                    <label>{`Add profile picture (not more than ${MB}MB in size)`}</label>
+                    <div className='cmtc-profile-file'>
+                        {
+                            profileFile.name ? 
+                            <img src={profileURL} alt='profile-img' /> :
+                            <div className='cmtc-profile-placeholder'>
+                                Pick a pic
+                            </div>
+                        }
+                        <label htmlFor="cmtc-profile-file" className="cmtcf-edit cursor">
+                            <MdEdit className="cmtci-icon" />
+                        </label>
+                        <input type="file" id="cmtc-profile-file" onChange={handleProfileFileChange} accept='image/*'/>
+                    </div>
+                </div>
+                
+                <div className="cmtc-field cmtc-file">
+                    <label>{`Add banner picture (not more than ${MB}MB in size)`}</label>
+                    <div className='cmtc-banner-file'>
+                        {
+                            bannerFile.name ? 
+                            <img src={bannerURL} alt='banner-img' /> :
+                            <div className='cmtc-banner-placeholder'></div>
+                        }
+                        <label htmlFor="cmtc-banner-file" className="cmtcf-edit cursor">
+                            <MdEdit className="cmtci-icon" />
+                        </label>
+                        <input type="file" id="cmtc-banner-file" onChange={handleBannerFileChange} accept='image/*'/>
+                    </div>
+                </div>
+
                 <div className='cmtc-field'>
                     <label>Community Name</label>
                     <input placeholder='Name' name='name' onChange={handleChange} />

@@ -4,14 +4,17 @@ import ProfileHomeLoading from "./load";
 // import { IoIosCopy } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../../store/user";
-import { amountShort, decodeData, decodeUint8, getDate, inProductionContent, parseContentData } from "../../utils";
+import { amountShort, decodeData, decodeUint8, getDate, inProductionContent, parseContentData, ProfileAvatar, setMessageFn } from "../../utils";
 import ErrorPage from "../../component/error";
 import { createContentContractInstance, createUserContractInstance } from "../../services/contracts_creators";
 import { bindActionCreators } from "redux";
 import SkeletonLoader from "../../component/skeleton";
 import UserPageHome from "./userPageHome";
 import UserPageContent from "./userPageContent";
-import { BAD_INDEX } from "../../config";
+import { BAD_INDEX, FRONTEND_URL } from "../../config";
+import { useParams } from "react-router-dom";
+import { IoIosCopy } from "react-icons/io";
+import { setMessage } from "../../store/message";
 
 
 const ProfileHomePage = () => {
@@ -27,28 +30,23 @@ const ProfileHomePage = () => {
 
     const user = useSelector(state => state.user);
     const contract = useSelector(state => state.contract);
-
-    const interests = ['string', 'powershell', 'web3', 'ethereum'];
-    // const about = ('You know is all I crave. Just here for fun. ').repeat(9);
-    // const feeds = Array(5).fill({
-    //     poster: 'Victory', timestamp: String(new Date()),
-    //     content: ('You know how hard I worked for this. I built this shit, me, brick by brick').repeat(10),
-    //     sub_data: { tags: interests }
-    // });
+    const [profileUser, setProfileUser] = useState({});
     
     const dispatch = useDispatch();
+    const { id } = useParams();
     const setUserData = bindActionCreators(setUser, dispatch);
+    const setMessageData = bindActionCreators(setMessage, dispatch);
 
     const fetchFeeds = async () => {
         setLoading(true);
         const userContractInstance = await createUserContractInstance(contract.signer);
         const contentContractInstance = await createContentContractInstance(contract.signer);
-        const meta_data = await contentContractInstance.getProfile();
+        const meta_data = await contentContractInstance.getProfile(id);
         setUserMetaData(JSON.parse(meta_data));
         const res = await contentContractInstance.getContentList(0);
         const data = [];
         for(const response of Array.from(res).reverse()) {
-            if(!inProductionContent(response)) continue;
+            // if(!inProductionContent(response)) continue;
             const value = parseContentData(response);
             if(value.author === contract.address) {
                 const author = await userContractInstance.getUsername(value.author);
@@ -58,12 +56,11 @@ const ProfileHomePage = () => {
         }
         setFeeds(data);
         setFeedsData(data);
-        const stakes = await contentContractInstance.getMyStakes();
-        console.log('stakes =>', stakes, Array.from(stakes)[0]);
+        const stakes = await contentContractInstance.getMyStakes(id);
         const stk_data = [];
         for(const stakeId of Array.from(stakes).reverse()) {
             const stake_id = stakeId +'';
-            if(stake_id < BAD_INDEX) continue;
+            // if(stake_id < BAD_INDEX) continue;
             const resp = parseContentData(await contentContractInstance.getContent(stake_id-0));
             // resp.community_id
             const author = await userContractInstance.getUsername(resp.author);
@@ -77,22 +74,25 @@ const ProfileHomePage = () => {
         if(!contract.signer) return setError(true);
 
         setError(false);
-        setLoading(!user.name ? 'fetching' : true);
+        setLoading(( id === contract.address && user.name ) ? true : 'fetching');
         
         // still fetch in case a new content has been created
         try {
-            if(!user.name) {
+            // by hierachy this should work
+            // cus first we check if it is not user then we just start fetching data
+            // else we know the id is user's own, so now check if user data is present
+            if(id === contract.address && user.name) setProfileUser(user);
+            else {
                 const userContractInstance = await createUserContractInstance(contract.signer);
-                const res = await userContractInstance.getMetaData();
+                const res = await userContractInstance.getMetaData(id);
                 const userRes = JSON.parse(res);
                 const metaData = decodeData(userRes.metaData, 'bytes');
-                console.log('meta_data decoded', metaData);
-                setUserData({ ...userRes, ...metaData });
-            }
+                if(id === contract.address) setUserData({ ...userRes, ...metaData });
+                setProfileUser({ ...userRes, ...metaData });
+            } 
             await fetchFeeds();
             setLoading(false); 
         } catch (err) {
-            console.log(err);
             setError(true);
             setLoading(false); 
         }
@@ -108,12 +108,21 @@ const ProfileHomePage = () => {
         if(value === 'Votes') setFeedsData(votes);
     };
 
+    const copyLink = async () => {
+        try {
+            await navigator.clipboard.writeText(`${FRONTEND_URL}/app/profile/${id}`);
+            setMessageFn(setMessageData, { status: 'success', message: 'Link copied.' });
+        } catch (err) {
+            setMessageFn(setMessageData, { status: 'error', message: 'Failed to copy.' });
+        }
+    };
+
     return (
         <div className="__Profile__">
             <div className="profile-wrapper">
                 <div className="profile-content">
                     {
-                        (error && !user.name) ?
+                        (error && !profileUser.name) ?
 
                         <ErrorPage refreshFn={fetchUser} /> :
 
@@ -123,15 +132,17 @@ const ProfileHomePage = () => {
 
                         <div className="profile-Main">
                             <header>
-                                <div className="pm-header-img"></div>
-                                <div className="pm-header-txt">
-                                    <h3>{user.name}</h3>
-                                    <span>{user.email}</span>
+                                <div className="pm-header-img">
+                                    {
+                                        profileUser.secure_url ? 
+                                        <img src={profileUser.secure_url} alt="user-profile" /> :
+                                        <ProfileAvatar />
+                                    }
                                 </div>
-                                {/* <div className="share-profile cursor">
-                                    Link
-                                    <IoIosCopy className="share-profile-icon" />
-                                </div> */}
+                                <div className="pm-header-txt">
+                                    <h3>{profileUser.name}</h3>
+                                    <span>{profileUser.email}</span>
+                                </div>
                             </header>
                             <main className="pM-main">
                                 <div className={`pm-nav`}>
@@ -160,7 +171,7 @@ const ProfileHomePage = () => {
                                     <div className={`PM__About ${route==='About'}`}>
                                         <div className="pm-about">
                                             <span className="pm-subtopic">DESCRIPTION</span>
-                                            <div className="pm-about-txt"><span>{user.about}</span></div>
+                                            <div className="pm-about-txt"><span>{profileUser.about}</span></div>
                                             
                                             {!userMetaData.joined_at && <div className="joined-at pm-about-txt-loading">
                                                 <SkeletonLoader />
@@ -173,6 +184,16 @@ const ProfileHomePage = () => {
                                             {userMetaData.joined_at && <div className="pm-about-txt pat-ja">
                                                 <span>{getDate(userMetaData.joined_at, true)}</span>
                                             </div>}
+
+                                            
+                                            <div className="pm-share-profile">
+                                                <span className="pm-subtopic">PROFILE LINK</span>
+                                                <div className='pm-share-profile-link'>
+                                                    <span>{`${FRONTEND_URL}/app/profile/${id}`}</span>
+                                                    <div onClick={copyLink}><IoIosCopy className="pm-share-profile-icon" /></div>
+                                                </div>
+                                            </div>
+
                                         </div>
                                         {
                                             loading ?
@@ -214,7 +235,7 @@ const ProfileHomePage = () => {
                                             <span className="pm-subtopic">INTERESTS</span>
                                             <div className="pmt">
                                                 <div className="pmt_">
-                                                    {user.interests.map((val, idx) => (
+                                                    {profileUser.interests.map((val, idx) => (
                                                         <div className="pmt-div" key={`pmt-${idx}`}>{val}</div>
                                                     ))}
                                                 </div>

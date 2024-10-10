@@ -104,6 +104,8 @@ const Wallet = ({ toggleSidebar }) => {
                             type: op === 'T' ? 'Transferred' : 'Received', time_stamp,
                             text: `${notUserAddress}`, hasAddress: true
                         });
+                    } else if(notUserAddress == "0x0000000000000000000000000000000000000000") {
+                        data.push({ type: 'New User reward', text: 'IDONK', amt: getTokenAmount(value), op, time_stamp }); 
                     }
                 }
 
@@ -139,7 +141,6 @@ const Wallet = ({ toggleSidebar }) => {
             await fetchHistoryData();
             setLoading(false);
         } catch (err) {
-            console.log(err);
             setError(true);
             setLoading(false);
         }

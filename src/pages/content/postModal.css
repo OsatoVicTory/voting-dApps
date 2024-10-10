@@ -138,6 +138,9 @@ div input {
     height: 100%;
     border-radius: inherit;
 }
+.file-doc- img {
+    object-fit: contain;
+}
 .file-doc {
     width: 100%;
     height: 100%;

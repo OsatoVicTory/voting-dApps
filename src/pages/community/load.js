@@ -8,10 +8,10 @@ const CommunityLoading = () => {
     return (
         <div className='community cmty-loading'>
             <div className='community-header'>
-                <div className='ch'>
+                <div className={`community-banner`}><SkeletonLoader /></div>
+                <div className={`ch`}>
                     <div className='ch-img'><SkeletonLoader /></div>
                     <h3><div className='cm-subtopic-loading'><SkeletonLoader /></div></h3>
-                    <div className='cmt-h3-loading'><SkeletonLoader /></div>
                     <div className='ch-right'>
                         <div className='chr-loading'><SkeletonLoader /></div>
                         <div className='chr-loading'><SkeletonLoader /></div>

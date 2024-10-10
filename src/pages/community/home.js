@@ -11,6 +11,8 @@ import { createCommunitiesContractInstance, createUserContractInstance } from '.
 import ErrorPage from '../../component/error';
 import { setSessions } from '../../store/sessions';
 import CreateCommunityModal from './modal';
+import Pagination from '../../component/pagination';
+import { COMMUNITY_PAGINATION_LENGTH } from '../../config';
 
 const CommunityHome = () => {
 
@@ -18,6 +20,7 @@ const CommunityHome = () => {
     const contract = useSelector(state => state.contract);
     // keep communities state because of search
     const [communities, setCommunities] = useState(communitiesData||[]);
+    const [paginationIndex, setPaginationIndex] = useState(1);
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
@@ -29,6 +32,7 @@ const CommunityHome = () => {
     const setSessionsData = bindActionCreators(setSessions, dispatch);
 
     const fetchCommunities = async () => {
+
         if(!contract.signer) return setError(true);
         // no need for setMessage to alert for error, since there is error div for that and 
         // no need to alert success as we are only fetching data not positing anything
@@ -36,7 +40,6 @@ const CommunityHome = () => {
         setLoading(true);
         // if we have loaded communities list, use it as placeholder, while still fetching for newly created communities
         if(sessions.community) {
-            setCommunities(communitiesData);
             setLoading(false);
         }
         // still fetch in case a new community has been created
@@ -47,19 +50,19 @@ const CommunityHome = () => {
             const data = [];
             for(let i = 1; i <= last_index; i++) {
                 // remove i < 3 line, for production launch
-                if(i < 3) continue; 
+                // if(i < 3) continue; 
                 const community = await communityContractInstance.getCommunity(i);
                 if(!community) continue;
                 const cmmty = parseCommunityData(community);
                 const creator = await userContractInstance.getUsername(cmmty.creator);
                 data.push({ ...cmmty, creator, community_id: i+'' });
             }
-            setCommunityData(data);
-            setCommunities(data);
+            const Data = data.reverse();
+            setCommunityData(Data);
+            setCommunities(Data.slice(0, COMMUNITY_PAGINATION_LENGTH));
             if(!sessions.community) setSessionsData({ community: true });
             setLoading(false); 
         } catch (err) {
-            console.log(err);
             setError(true);
             setLoading(false); 
         }
@@ -69,13 +72,21 @@ const CommunityHome = () => {
         fetchCommunities();
     }, []);
 
+    useEffect(() => {
+        // only length of community redux state can change based on
+        // if we have added or deleted in community redux state, for any change
+        // let it just default to start from 0 to pag_length, don't worry its fine and good practice as data as changed
+        setCommunities(communitiesData.slice(0, COMMUNITY_PAGINATION_LENGTH));
+        setPaginationIndex(1);
+    }, [communitiesData.length]);
+
     function navTo(to) {
         if(loading) return;
         navigate(`/app/community/page/${to}`)
     };
 
     function closeModal() { setModal(false); }
-    const dummy = Array(12).fill(0);
+    const dummy = Array(24).fill(0);
 
     return (
         <div className='community-Home'>
@@ -96,10 +107,16 @@ const CommunityHome = () => {
                         {/* Add a condition for if user is searching communities
                             then we will use communities state data here that will have been updated based on search
                         */}
-                        {(loading ? dummy : communitiesData).map((val, idx) => (
+                        {(loading ? dummy : communities).map((val, idx) => (
                             <li key={`cm-${idx}`} className={`cmts-li ${loading?'':'cursor'}`} onClick={() => navTo(val.community_id)}>
                                 <div className='cmtsl-img'>
-                                    {loading ? <SkeletonLoader /> : <div className='d-'></div>}
+                                    {
+                                        loading ? 
+                                        <SkeletonLoader /> : 
+                                        <div className='d-'>
+                                            {val.meta_data.profile_url && <img src={val.meta_data.profile_url} alt='avatar' />}
+                                        </div>
+                                    }
                                 </div>
 
                                 {loading && <div className='cmtsl-txt'>
@@ -118,7 +135,15 @@ const CommunityHome = () => {
                     </ul>
                 }
             </div>
+
             {/* Pagination div goes here */}
+            {
+                (sessions.community && communitiesData.length > 21) && 
+                <Pagination loading={loading} 
+                fullLength={Math.ceil( communitiesData.length / 21 )} 
+                data={communitiesData} indexSelected={paginationIndex} 
+                setIndexSelected={setPaginationIndex} setData={setCommunities} />
+            }
 
             {/* Create Community Modal */}
             {modal && <CreateCommunityModal closeModal={closeModal} />}

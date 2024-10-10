@@ -1,7 +1,5 @@
-import { FaArrowUpLong } from 'react-icons/fa6';
 import '../signup/styles.css';
 import './profile.css';
-import { BiSolidCommentDetail } from 'react-icons/bi';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { Route, Routes } from 'react-router-dom';
 // import ProfileHome from './profile';
@@ -19,7 +17,7 @@ const Profile = ({ toggleSidebar }) => {
                 </div>
                 <Routes>
                     {/* <Route path='/' element={<ProfileHome />} /> */}
-                    <Route path='/' element={<ProfileHomePage />} />
+                    <Route path='/:id' element={<ProfileHomePage />} />
                     <Route path='/edit' element={<EditUser />} />
                 </Routes>
             </div>

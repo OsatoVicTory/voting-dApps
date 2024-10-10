@@ -47,7 +47,7 @@ const LandingPage = () => {
             setMessageFn(setMessageData, { status: 'error', message: 'You have not registered with us.' });
             return navigate('/signup');
         } else {
-            const res = await userContractInstance.getMetaData();
+            const res = await userContractInstance.getMetaData(signerAddress);
             const userRes = JSON.parse(res);
             const metaData = decodeData(userRes.metaData, 'bytes');
 
@@ -73,7 +73,9 @@ const LandingPage = () => {
         if (!window.ethereum) return setMessageFn(setMessage, { status: 'error', message: 'Install Metamask extension!' });
 
         loadContract().catch(error => {
-            setMessageFn(setMessageData, { status: 'error', message: 'Error connecting wallet' });
+            if(error.message === "No crypto wallet found. Please install MetaMask.") {
+                setMessageFn(setMessageData, { status: 'error', message: error.message });
+            } else setMessageFn(setMessageData, { status: 'error', message: 'Error connecting wallet' });
             setConnecting(false);
         });
     };

@@ -6,7 +6,7 @@ import { AiOutlineClose } from 'react-icons/ai';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import StakeContentModal from '../content/stakeModal';
 import { useDispatch, useSelector } from 'react-redux';
-import { formatDate, getTokenAmount, rewardableThreshold, setMessageFn } from '../../utils';
+import { formatDate, getTokenAmount, ProfileAvatar, rewardableThreshold, setMessageFn } from '../../utils';
 import ContentFile from '../../component/contentFile';
 import SkeletonLoader from '../../component/skeleton';
 import { 
@@ -64,7 +64,6 @@ const CommunityContent = ({ feeds, error }) => {
         try {
             if(!content.author) return;
             const votes_data = await contentContractInstance.getVoters(content_id-0);
-            console.log('vote data =>', votes_data);
             const data = [];
             for(const vote_data of Array.from(votes_data).reverse()) {
                 const vote = JSON.parse(vote_data);
@@ -124,7 +123,11 @@ const CommunityContent = ({ feeds, error }) => {
                 setMessageFn(setMessageData, { status: 'success', message: 'Claimed your reward successfully.' });
                 setClaiming(false);
             } else {
-                setMessageFn(setMessageData, { status: 'error', message: 'Sorry claiming is currently in cool down period.' });
+                setClaiming(false);
+                setMessageFn(setMessageData, { 
+                    status: 'error', 
+                    message: 'Sorry claiming is currently in cool down period. Try again after 5 mins.' 
+                });
             }
         } catch (err) {
             console.log(err);
@@ -211,7 +214,7 @@ const CommunityContent = ({ feeds, error }) => {
                         </div>
                     </div>
                     <div className="pc-details">
-                        <div className="pd-img"></div>
+                        <div className="pd-img"><ProfileAvatar /></div>
                         <div className='pd-txt'>
                             <span className="pd-poster">{content.author}</span>
                             <span className="pd-post-time">{formatDate(content.timestamp, true)}</span>

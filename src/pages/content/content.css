@@ -117,8 +117,11 @@ div .pc-main-main {
 .pd-img {
     width: 45px;
     height: 45px;
-    background-color: var(--bgblue);
-    border-radius: 6px;
+}
+.pd-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
 }
 .pd-txt {
     margin-left: 9px;

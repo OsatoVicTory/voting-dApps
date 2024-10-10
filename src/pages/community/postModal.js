@@ -13,7 +13,7 @@ import { generateHTMLString, getTokenAmount, multiplyBigDecimals, parseContentDa
 import { setMessage } from "../../store/message";
 import { postingContent } from "../../store/contents";
 import { sendFile } from "../../services";
-import { MB } from "../../config";
+import { MB, POST_TAGS } from "../../config";
 import { createContentCreatorContractInstance, createUserContractInstance, createVotesContractInstance, parseBigInt } from "../../services/contracts_creators";
 import { setWallet } from "../../store/wallet";
 
@@ -43,7 +43,7 @@ const CommunityPostModal = ({ closeModal, destination, community_id, setFeeds, f
     const dropdownRef = useRef();
     const selectRef = useRef();
     const sendLoadingRef = useRef(false);
-    const options = ['Javascript', 'Python', 'Typescript', 'Nodejs', 'Ethereum'];
+    const options = POST_TAGS;
 
     function clickFn(e) {
         if(!modalRef.current) return;

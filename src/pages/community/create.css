@@ -56,6 +56,79 @@
 .cmtc-field label {
     font-size: 14px;
 }
+
+.cmtc-file {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+.cmtc-profile-file {
+    width: 100px;
+    height: 100px;
+    position: relative;
+    margin-top: 10px;
+}
+.cmtc-banner-file {
+    width: 100%;
+    height: 130px;
+    position: relative;
+    margin-top: 10px;
+}
+.cmtc-banner-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px 10px 0px 0px;
+}
+.cmtc-profile-placeholder, .cmtc-banner-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(27, 27, 27, 0.3);
+    color: var(--white);
+    font-size: 14px;
+}
+.cmtc-profile-file img, .cmtc-profile-placeholder,
+.cmtc-banner-file img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.cmtc-banner-file img {
+    border-radius: 10px 10px 0px 0px;
+}
+.cmtc-banner-file img {
+    object-fit: cover;
+}
+.cmtc-profile-file label, .cmtc-banner-file label {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    background-color: #f5f5f5;
+    box-shadow: var(--boxshadow);
+    position: absolute;
+    right: 10px;
+    bottom: 0px;
+    z-index: 9;
+}
+.cmtc-banner-file label {
+    right: 0px;
+    border-radius: 10px 0px 0px 0px;
+}
+.cmtci-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--grey);
+}
+.cmtc-profile-file input, .cmtc-banner-file input {
+    display: none;
+}
+
 .community-Create input, .cmtc-select-box, .community-Create textarea {
     background: none;
     outline: none;

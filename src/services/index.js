@@ -15,3 +15,8 @@ export const sendFile = (data) => {
     const url = `${SERVER_URL}/upload_contents_file`;
     return axios.post(url, data);
 };
+
+export const sendProfileFile = (data) => {
+    const url = `${SERVER_URL}/upload_users_file`;
+    return axios.post(url, data);
+};

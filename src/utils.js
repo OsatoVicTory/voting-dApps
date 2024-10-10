@@ -2,6 +2,11 @@ import { convertFromRaw } from "draft-js";
 import { stateToHTML } from "draft-js-export-html";
 import BigDecimal from 'js-big-decimal';
 import { BAD_INDEX, REWARDS_THRESHOLD } from "./config";
+import profile_avatar from './images/avatar.png';
+
+export const ProfileAvatar = () => {
+    return (<img src={profile_avatar} alt="avatar" />);
+};
 
 export const scrolledToBottom = (e, scrollFn) => {
     const { scrollTop, scrollHeight, offsetHeight } = e.target;

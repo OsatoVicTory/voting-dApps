@@ -66,7 +66,6 @@ const Send = ({ contract, setWalletData, setMessageData, wallet, fetchHistoryDat
         try {
             const walletContractInstance = await createERC20ContractInstance(contract.signer);
             const bool = await walletContractInstance.transfer(sendOptions.address, bigIntAmount);
-            console.log('output of transfer', bool);
 
             if(!bool) {
                 setSendLoading(false);
@@ -75,13 +74,11 @@ const Send = ({ contract, setWalletData, setMessageData, wallet, fetchHistoryDat
             
             const new_wallet_amt = subtractBigDecimals(wallet.actualAmount, bigIntAmount);
             const resAmt = getTokenAmount(new_wallet_amt);
-            console.log('bigIntAmt', bigIntAmount, wallet.actualAmount, 'new_wallet_amt', new_wallet_amt, resAmt)
             setWalletData({ amount: resAmt, actualAmount: resAmt });
             setMessageFn(setMessageData, { status: 'success', message: 'Transfer successful.' });
             setSendLoading(false);
             fetchHistoryData(true);
         } catch (err) {
-            console.log(err);
             setSendLoading(false);
             setMessageFn(setMessageData, { status: 'error', message: 'Transfer failed. Check internet and retry.' });
         }

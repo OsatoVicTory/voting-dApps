@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import MultiChoiceInputWithDropdown from '../../component/multiChoice';
 import banner from '../../images/phone_banner.png';
 import logo from '../../images/idonk_no_bg_1.png';
@@ -13,12 +13,17 @@ import { setMessage } from '../../store/message';
 import { setWallet } from '../../store/wallet';
 import { setContract } from '../../store/contract';
 import { BrowserProvider } from 'ethers';
+import { MB, USER_INTERESTS } from '../../config';
+import { sendProfileFile } from '../../services';
+import { MdEdit } from 'react-icons/md';
 
 const Signup = () => {
-    const lists = ['Crypto', 'Block Chain', 'Web3', 'Ethereum', 'Arbitrum', 'NFTs', 'Sepolia', 'Testnets'];
+    const lists = USER_INTERESTS;
     const [user, setUserChoice] = useState({ interests: [] });
     const contract = useSelector(state => state.contract);
     const [loading, setLoading] = useState(false);
+    const [profileFile, setProfileFile] = useState({});
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const setUserData = bindActionCreators(setUser, dispatch);
@@ -35,21 +40,24 @@ const Signup = () => {
         setUserChoice({ ...user, [name]: value });
     };
 
+    
+    useEffect(() => {
+        return () => {
+            if(profileFile.filename) URL.revokeObjectURL(profileFile);
+        }
+    }, []);
+
     async function handleSubmit(e) {
         e.preventDefault();
         if(loading) return;
 
         setLoading(true);
-        try {
+
+        try { 
+
             let signer_val = contract.signer;
             let address = contract.address;
-            const data = encodeToByte(
-                JSON.stringify({ 
-                    email: user.email, 
-                    about: user.about, 
-                    interests: user.interests 
-                })
-            );
+
             if(!contract.signer) {
                 if(!window.ethereum) {
                     setLoading(false);
@@ -64,6 +72,30 @@ const Signup = () => {
                 signer_val = signer;
                 setContractData({ signer, address: signerAddress });
             }
+   
+            if(!profileFile.name) {
+                const reply = await prompt('No picture selected. Proceed anyways. Y or N ?');
+                if(reply !== 'Y') return setLoading(false);
+            }
+            let [ secure_url, public_id ] = ['', ''];
+            if(profileFile.name) {
+                const formData = new FormData();
+                formData.append('file', profileFile);
+                formData.append('filename', profileFile.name);
+
+                const { data } = await sendProfileFile(formData);
+                secure_url = data.data.secure_url;
+                public_id = data.data.public_id;
+            }
+
+            const data = encodeToByte(
+                JSON.stringify({ 
+                    email: user.email, secure_url,
+                    about: user.about, public_id,
+                    interests: user.interests 
+                })
+            );
+            
             const userContractInstance = await createUserContractInstance(signer_val);
             const nameTaken = await userContractInstance.nameTaken(user.name);
             if(nameTaken) {
@@ -71,10 +103,11 @@ const Signup = () => {
                 setMessageFn(setMessageData, { status: 'error', message: 'Name is already taken. Choose another please.'});
                 return;
             }
+
             const safeUserRegContractInstance = await createSafeUserRegistrationContractInstance(signer_val);
             await userContractInstance.registerUser(`${user.name}`, data);
             await safeUserRegContractInstance.registerUser();
-            const res = await userContractInstance.getMetaData();
+            const res = await userContractInstance.getMetaData(address);
             const userRes = JSON.parse(res);
             const metaData = decodeData(userRes.metaData, 'bytes');
 
@@ -95,6 +128,20 @@ const Signup = () => {
             setMessageFn(setMessageData, { status: 'error', message: 'There was an error. Check internet and try again.'});
         }
     };
+    
+    const profileURL = useMemo(() => {
+        if(profileFile.name) return URL.createObjectURL(profileFile);
+    }, [profileFile.name]);
+
+    function handleProfileFileChange(e) {
+        if(profileFile.name) URL.revokeObjectURL(profileFile);
+        const file = e.target.files[0];
+        if(!file?.size) return;
+        if(file.size > (MB * 1024 * 1024)) {
+            return setMessageFn(setMessageData, { status: 'error', message: `File cannot be more than ${MB}MB` });
+        }
+        setProfileFile(file);
+    };
 
     return (
         <div className='signup'>
@@ -106,7 +153,26 @@ const Signup = () => {
                         </div>
                         <h3>Set up Account</h3>
                         <p>Note that records here cannot be modified later on</p>
+
                         <form className='signup-form' onSubmit={handleSubmit}>
+
+                            <div className="sf-filed cmtc-field cmtc-file">
+                                <label>{`Add File (either image or document file not more than ${MB}MB in size)`}</label>
+                                <div className='cmtc-profile-file'>
+                                    {
+                                        profileFile.name ? 
+                                        <img src={profileURL} alt='profile-img' /> :
+                                        <div className='cmtc-profile-placeholder'>
+                                            Pick a pic
+                                        </div>
+                                    }
+                                    <label htmlFor="cmtc-profile-file" className="cmtcf-edit cursor">
+                                        <MdEdit className="cmtci-icon" />
+                                    </label>
+                                    <input type="file" id="cmtc-profile-file" onChange={handleProfileFileChange} accept='image/*'/>
+                                </div>
+                            </div>
+
                             <div className='sf-filed'>
                                 <label>Username</label>
                                 <input placeholder='Enter username' name='name' onChange={handleChange} />
@@ -136,7 +202,7 @@ const Signup = () => {
                     <div className='sb'>
                         <img src={banner} alt='banner' />
                         <div className='sb-txt'>
-                            <h1>Let's get you started <br /> on your quest for knowledge.</h1>
+                            <h1>The Best Decentralized<br />Knowledge Verification Platform.</h1>
                         </div>
                     </div>
                 </aside>

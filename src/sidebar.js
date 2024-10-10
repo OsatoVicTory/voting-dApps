@@ -4,19 +4,30 @@ import { MdHome, MdAccountBalanceWallet, MdAccountCircle, MdGroups } from 'react
 import './voting.css';
 import { AiOutlineClose } from 'react-icons/ai';
 import logo from './images/idonk_no_bg_1.png';
+import { useSelector } from 'react-redux';
 
 const Sidebar = ({ toggleSidebar, setShowSidebar }) => {
 
     const [route, setRoute] = useState('/');
     const navigate = useNavigate();
+    const contract = useSelector(state => state.contract);
     const path = useLocation().pathname;
     const fn = (val) => { navigate(`/app/${val}`); };
 
     useEffect(() => {
-        if(path.includes('wallet')) setRoute('wallet');
-        else if(path.includes('profile')) setRoute('profile');
-        else if(path.includes('community')) setRoute('community');
-        else setRoute('/');
+        if(path.includes('wallet')) {
+            setRoute('wallet');
+            document.title = 'IDONK | Wallet';
+        } else if(path.includes('profile')) {
+            setRoute('profile');
+            document.title = 'IDONK | Profile';
+        } else if(path.includes('community')) {
+            setRoute('community');
+            document.title = 'IDONK | Community';
+        } else {
+            setRoute('/');
+            document.title = 'IDONK';
+        }
 
         setShowSidebar(false);
 
@@ -37,7 +48,7 @@ const Sidebar = ({ toggleSidebar, setShowSidebar }) => {
                     <MdAccountBalanceWallet className='sb-icon' />
                     <span className='sb-main-txt'>Wallet</span>
                 </div>
-                <div className={`sb-main-li cursor ${route==='profile'}`} onClick={()=>fn('profile')}>
+                <div className={`sb-main-li cursor ${route==='profile'}`} onClick={()=>fn(`profile/${contract.address}`)}>
                     <MdAccountCircle className='sb-icon' />
                     <span className='sb-main-txt'>Profile</span>
                 </div>

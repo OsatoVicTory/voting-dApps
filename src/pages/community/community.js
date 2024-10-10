@@ -15,6 +15,7 @@ import { bindActionCreators } from 'redux';
 import CommunityPageHome from './community_home';
 import CommunityContent from './community_content';
 import CommunityPostModal from './postModal';
+import community_image from '../../images/community.jpg';
 
 const CommunityPage = ({ toggleSidebar }) => {
 
@@ -25,6 +26,8 @@ const CommunityPage = ({ toggleSidebar }) => {
     const [error, setError] = useState(false);
     const [community, setCommunity] = useState({});
     const [joinLoading, setJoinLoading] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
+    const scrolledRef = useRef(false);
 
     const { id, content_id } = useParams();
     const navigate = useNavigate();
@@ -32,10 +35,9 @@ const CommunityPage = ({ toggleSidebar }) => {
     const setMessageData = bindActionCreators(setMessage, dispatch);
     const sessions = useSelector(state => state.sessions);
     const contract = useSelector(state => state.contract);
-    const cmt = useSelector(state => state.community).find(val => val.community_id === id);
+    const cmt = useSelector(state => state.community).find(val => val.community_id == id);
     const cmtRef = useRef(cmt);
 
-    const communityName = 'Ethereum';
     const communityError = 'Sorry, there is no community like this.';
 
     function closeModal() { setModal(false); }
@@ -83,7 +85,6 @@ const CommunityPage = ({ toggleSidebar }) => {
             await fetchFeeds();
             setLoading(false);
         } catch (err) {
-            console.log(err);
             setError('Error fetching data. Check internet and try again.');
             setLoading(false);
         }
@@ -93,7 +94,6 @@ const CommunityPage = ({ toggleSidebar }) => {
         if(sessions.community) {
             if(!cmt) fetchCommunity();
             else {
-                console.log('communty data', cmt);
                 cmtRef.current = cmt;
                 setCommunity(cmt);
                 setLoading(true);
@@ -120,6 +120,21 @@ const CommunityPage = ({ toggleSidebar }) => {
         }
     };
 
+    const handleScroll = (e) => {
+        const { scrollTop } = e.target;
+        if(scrollTop > 100) {
+            if(!scrolledRef.current) {
+                setScrolled(true);
+                scrolledRef.current = true;
+            }
+        } else {
+            if(scrolledRef.current) {
+                setScrolled(false);
+                scrolledRef.current = false;
+            }
+        }
+    };
+
     return (
         <div className='community-Page'>
         {
@@ -139,10 +154,37 @@ const CommunityPage = ({ toggleSidebar }) => {
 
             <CommunityLoading /> :
 
-            <div className='community'>
+            <div className='community' onScroll={(e) => handleScroll(e)}>
+                <div className={`ch positioned ${scrolled}`}>
+                    <div className='ch-img'>
+                        {community.meta_data.profile_url && <img src={community.meta_data.profile_url} alt='avatar' />}
+                    </div>
+                    <h3>{community.name}</h3>
+                    <div className='ch-right'>
+                        {community.isMember && <div className='chr cursor' onClick={() => setModal('create')}>
+                            <FaPlus className='chr-icon' />
+                            <span>Create Post</span>
+                        </div>}
+                        {
+                            loading ? <div className='member-loading'><SkeletonLoader /></div> :
+                            community.isMember ? 
+                            <div className='chr-'>Member</div> :
+                            <div className='chr join cursor' onClick={handleJoin}>
+                                {joinLoading ? 'Joining...' : 'Join'}
+                            </div>
+                        }
+                    </div>
+                </div>
+
                 <div className='community-header'>
-                    <div className='ch'>
-                        <div className='ch-img'></div>
+                    <div className={`community-banner ${scrolled}`}>
+                        <img src={community.meta_data.banner_url} alt='banner' />
+                    </div>
+                    <div className={`ch ${scrolled}`}>
+                        {/* community.meta_data.banner_url for banner image */}
+                        <div className='ch-img'>
+                            {community.meta_data.profile_url && <img src={community.meta_data.profile_url} alt='avatar' />}
+                        </div>
                         <h3>{community.name}</h3>
                         <div className='ch-right'>
                             {community.isMember && <div className='chr cursor' onClick={() => setModal('create')}>
@@ -199,7 +241,7 @@ const CommunityPage = ({ toggleSidebar }) => {
                         </div>
                         <div className='cm-data'>
                             <div className='cmd-metric'>
-                                <span className='cmdm-value'>{amountShort(community['numbers of members']-0||1)}</span>
+                                <span className='cmdm-value'>{amountShort((community['numbers of members'] - 0) + 1)}</span>
                                 <span className='cmdm-name'>Member(s)</span>
                             </div>
                             

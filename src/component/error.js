@@ -87,7 +87,7 @@ const ErrorPage = ({ text, refreshFn, important, btnName, setContractRef }) => {
                 </div>
                 <p className='ep-h3'>
                     {!contract.signer ? 'No wallet connected. Connect your wallet to continue.' :
-                    important ? text : 'There was an error loading the data. Check internet connection and Retry'}
+                    important ? (text || 'Reload') : 'There was an error loading the data. Check internet connection and Retry'}
                 </p>
                 <div className='ep-btn cursor' onClick={() => fireFn()}>
                     {loading ? 
