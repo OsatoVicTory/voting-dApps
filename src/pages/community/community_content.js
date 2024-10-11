@@ -216,7 +216,10 @@ const CommunityContent = ({ feeds, error }) => {
                     <div className="pc-details">
                         <div className="pd-img"><ProfileAvatar /></div>
                         <div className='pd-txt'>
-                            <span className="pd-poster">{content.author}</span>
+                            <span className="pd-poster cursor"
+                            onClick={() => navigate(`/app/profile/${content.author_id}`)}>
+                                {content.author}
+                            </span>
                             <span className="pd-post-time">{formatDate(content.timestamp, true)}</span>
                             <div className='pdt-link cursor' onClick={copyLink}>
                                 Copy post link <IoIosCopy className="pdt-icon" />

@@ -51,7 +51,7 @@ const ProfileHomePage = () => {
             if(value.author === contract.address) {
                 const author = await userContractInstance.getUsername(value.author);
                 const total_votes = await contentContractInstance.getTotalVotes(value.content_id-0);
-                data.push({ ...value, author, votes: total_votes });
+                data.push({ ...value, author, votes: total_votes, author_id: value.author });
             }
         }
         setFeeds(data);
@@ -65,7 +65,7 @@ const ProfileHomePage = () => {
             // resp.community_id
             const author = await userContractInstance.getUsername(resp.author);
             const total_votes = await contentContractInstance.getTotalVotes(stake_id-0);
-            stk_data.push({ ...resp, author, votes: total_votes });
+            stk_data.push({ ...resp, author, votes: total_votes, author_id: resp.author });
         }
         setVotes(stk_data);
     };

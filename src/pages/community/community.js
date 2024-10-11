@@ -58,7 +58,7 @@ const CommunityPage = ({ toggleSidebar }) => {
             const value = parseContentData(response);
             const author = await userContractInstance.getUsername(value.author);
             const votes = await contentContractInstance.getTotalVotes(value.content_id-0);
-            data.push({ ...value, author, votes });
+            data.push({ ...value, author, votes, author_id: value.author });
         }
         setFeeds(data);
         setLoading(false);
@@ -223,8 +223,8 @@ const CommunityPage = ({ toggleSidebar }) => {
                         <Routes>
                             <Route 
                                 path='/' 
-                                element={<CommunityPageHome route={route} dummy={dummy} id={id}
-                                feeds={feeds} loading={loading} fetchFeeds={fetchFeeds} error={error} />} 
+                                element={<CommunityPageHome route={route} dummy={dummy} id={id} error={error}
+                                feeds={feeds} loading={loading} fetchFeeds={fetchFeeds} isMember={community.isMember} />} 
                             />
                             <Route 
                                 path='/:content_id'

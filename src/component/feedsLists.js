@@ -3,8 +3,11 @@ import { formatDate } from '../utils';
 import './feedsLists.css';
 import ContentFile from './contentFile';
 import ContentText from './contentText';
+import { useNavigate } from 'react-router-dom';
 
 const FeedsLists = ({ feeds, navToContentPage, community, linkCopyable }) => {
+
+    const navigate = useNavigate();
 
     return (
         <ul className='feeds__lists'>
@@ -12,7 +15,10 @@ const FeedsLists = ({ feeds, navToContentPage, community, linkCopyable }) => {
                 <li key={`f-l-${idx}`} className='f-l-feed-li cursor' onClick={() => navToContentPage(val.content_id)}>
                     <div className='f-l-top'>
                         <div className='f-l-t-img'></div>
-                        <span className='f-l-t-poster'>{val.author}</span>
+                        <span className='f-l-t-poster cursor'
+                        onClick={() => navigate(`/app/profile/${val.author_id}`)}>
+                            {val.author}
+                        </span>
                         <span className='f-l-t-time'>{`Posted ${formatDate(val.timestamp, true)}`}</span>
                         {/* add something for community, only for votes in profile home page */}
                         {(community && val.community_id > 0) && <div className='community-linkup'>

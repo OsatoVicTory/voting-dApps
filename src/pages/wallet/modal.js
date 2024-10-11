@@ -13,7 +13,7 @@ const Receive = ({ contract, setMessageData }) => {
     const copyAddress = async () => {
         try {
             await navigator.clipboard.writeText(contract.address);
-            setMessageFn(setMessageData, { status: 'success', message: 'Link copied.' });
+            setMessageFn(setMessageData, { status: 'success', message: 'Address copied.' });
         } catch (err) {
             setMessageFn(setMessageData, { status: 'error', message: 'Failed to copy.' });
         }

@@ -6,7 +6,7 @@ import SkeletonLoader from '../../component/skeleton';
 import { amountShort, formatDate } from '../../utils';
 import './community.css';
 
-const CommunityPageHome = ({ route, error, dummy, feeds, loading, fetchFeeds, id }) => {
+const CommunityPageHome = ({ route, error, dummy, feeds, isMember, loading, fetchFeeds, id }) => {
 
     const navigate = useNavigate();
 
@@ -46,7 +46,11 @@ const CommunityPageHome = ({ route, error, dummy, feeds, loading, fetchFeeds, id
                 ( 
                     feeds.length === 0 ?
 
-                    <NoData text={'No posts to this Community yet. Click the Create post button to create one now.'} /> :
+                    <NoData 
+                    text={`No posts to this Community yet. ${isMember ? 
+                        'Click the Create post button to create one now.' : 
+                        'Join and be the first to post.'}`
+                    } /> :
 
                     <FeedsLists 
                         feeds={feeds} linkCopyable={true}

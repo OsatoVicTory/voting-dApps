@@ -25,6 +25,12 @@ ul, li {
 .No-list-Data {
   width: 100%;
 }
+.f-l-mid-txt, .pc-txt {
+  white-space: wrap !important;
+}
+.f-l-mid-txt p, .pc-txt p {
+  margin: 21px 0px;
+}
 .cursor {
   cursor: pointer;
 }

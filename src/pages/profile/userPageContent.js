@@ -205,7 +205,10 @@ const UserPageContent = ({ feeds, error, contentId, setContentId }) => {
                     <div className="pc-details">
                         <div className="pd-img"></div>
                         <div className='pd-txt'>
-                            <span className="pd-poster">{content.author}</span>
+                            <span className="pd-poster cursor"
+                            onClick={() => navigate(`/app/profile/${content.author_id}`)}>
+                                {content.author}
+                            </span>
                             <span className="pd-post-time">{date_val}</span>
                             <div className='pdt-link cursor' onClick={copyLink}>
                                 Copy post link <IoIosCopy className="pdt-icon" />

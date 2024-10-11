@@ -47,7 +47,7 @@ const Contentlist = ({ openModal }) => {
                 if(!inProductionContent(val)) continue;
                 const value = parseContentData(val);
                 const author = await userContractInstance.getUsername(value.author);
-                data.push({ ...value, author });
+                data.push({ ...value, author, author_id: value.author });
             }
             setContentsData(data);
             if(!sessions.contents) setSessionsData({ contents: true });
@@ -82,7 +82,10 @@ const Contentlist = ({ openModal }) => {
                         <li className='post-list' key={`post-content-${idx}`}>
                             <div className='pl-top'>
                                 <div className='pl-img'></div>
-                                <span className='pl-txt'>{val.author}</span>
+                                <span className='pl-txt cursor' 
+                                onClick={() => navigate(`/app/profile/${val.author_id}`)}>
+                                    {val.author}
+                                </span>
                                 <span className='post-time'>{`posted ${formatDate(val.timestamp, true)}`}</span>
                             </div>
                             <div className='pl-mid cursor' onClick={() => navigate(`/app/post/${val.content_id}`)}>

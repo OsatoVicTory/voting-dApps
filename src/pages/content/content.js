@@ -97,7 +97,7 @@ const Content = () => {
                 }
                 const value = parseContentData(res);
                 const author = await userContractInstance.getUsername(value.author);
-                setContent({ ...value, author });
+                setContent({ ...value, author, author_id: value.author });
             }     
             setLoading(false); 
             await fetchVoters(contentContractInstance, userContractInstance);
@@ -265,7 +265,10 @@ const Content = () => {
                                 <div className="pd-post-time pdt-loading"><SkeletonLoader /></div>
                             </div> :
                             <div className='pd-txt'>
-                                <span className="pd-poster">{content.author}</span>
+                                <span className="pd-poster cursor"
+                                onClick={() => navigate(`/app/profile/${content.author_id}`)}>
+                                    {content.author}
+                                </span>
                                 <span className="pd-post-time">{formatDate(content.timestamp, true)}</span>
                                 <div className='pdt-link cursor' onClick={copyLink}>
                                     Copy post link <IoIosCopy className="pdt-icon" />
