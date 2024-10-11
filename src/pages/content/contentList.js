@@ -12,6 +12,7 @@ import ContentFile from '../../component/contentFile';
 import ErrorPage from '../../component/error';
 import { createContentContractInstance, createUserContractInstance } from '../../services/contracts_creators';
 import { setSessions } from '../../store/sessions';
+import NoData from '../../component/nodata';
 
 const Contentlist = ({ openModal }) => {
 
@@ -39,8 +40,8 @@ const Contentlist = ({ openModal }) => {
         try {
             const contractInstance = await createContentContractInstance(contract.signer);
             const userContractInstance = await createUserContractInstance(contract.signer);
-            // const OK = false;
-            const res = Array.from(await contractInstance.getContentList(0)).reverse();
+            // const p = await contractInstance.getContentList(0);
+            const res = (Array.from(await contractInstance.getContentList(0))).reverse();
             const data = [];
             for(let val of res) {
                 if(!inProductionContent(val)) continue;
@@ -70,6 +71,12 @@ const Contentlist = ({ openModal }) => {
             {
                 error ? <div className='post-error'><ErrorPage text={'Error loading data'} refreshFn={fetchData} /></div> :
                 loading ? <ContentLoading /> :
+                
+                contents.length === 0 ?
+                <div className='No-list-Data'>
+                    <NoData text={'No post created. Click the Create Add post button up to create one now.'} />
+                </div> :
+
                 <ul className='post-ul'>
                     {contents.map((val, idx) => (
                         <li className='post-list' key={`post-content-${idx}`}>

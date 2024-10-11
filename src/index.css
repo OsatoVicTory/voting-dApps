@@ -22,6 +22,9 @@ body {
 ul, li {
   list-style: none;
 }
+.No-list-Data {
+  width: 100%;
+}
 .cursor {
   cursor: pointer;
 }

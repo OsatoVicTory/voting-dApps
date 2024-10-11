@@ -4,7 +4,7 @@ export const MB = 2;
 
 export const COMMUNITY_PAGINATION_LENGTH = 18;
 
-export const BAD_INDEX = 12;
+export const BAD_INDEX = 7;
 
 export const etherscanApiKey = "U6SA62AJSXZFUW7FRA6XA8MN46HZ3RJFI3";
 

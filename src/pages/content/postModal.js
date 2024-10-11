@@ -163,7 +163,7 @@ const PostModal = ({ closeModal, destination, community_id }) => {
                 content_id = await contractInstance.getDraft();
             }
 
-            const cmmty_id = postDestination === 'Your feed' ? 0 : community_id || 0;
+            const cmmty_id = postDestination === 'Your feed' ? 0 : (community_id || 0);
             const date = Math.floor(new Date().getTime() / 1000);
 
             const duplicate_contentData = `{"content_id":"${content_id+''}","author":"${contract.address}","sub_data":"${stringifiedData}","content":"","community_id":"${cmmty_id}","verified":false,"timestamp":${date}}`;
@@ -174,7 +174,7 @@ const PostModal = ({ closeModal, destination, community_id }) => {
 
             const votesContractInstance = await createVotesContractInstance(contract.signer);
             setMessageFn(setMessageData, { status: 'success', message: 'Now voting on post...' });
-            await votesContractInstance.voteContent((cmmty_id)-0, bigIntAmount, (content_id+'')-0, 1);
+            await votesContractInstance.voteContent(cmmty_id-0, bigIntAmount, (content_id+'') - 0, 1);
 
             // do not try to set wallet data on backend because voteContent already does that
             // only just set the redux state for future use

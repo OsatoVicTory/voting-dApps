@@ -13,6 +13,7 @@ import { setSessions } from '../../store/sessions';
 import CreateCommunityModal from './modal';
 import Pagination from '../../component/pagination';
 import { COMMUNITY_PAGINATION_LENGTH } from '../../config';
+import NoData from '../../component/nodata';
 
 const CommunityHome = () => {
 
@@ -103,6 +104,12 @@ const CommunityHome = () => {
                     <div className='communities-error'>
                         <ErrorPage text={'Error loading data'} refreshFn={fetchCommunities} />
                     </div> :
+
+                    (!loading && communities.length === 0) ?
+                    <div className='No-list-Data'>
+                        <NoData text={'No Communities created. Click the Create community button up to create one now.'} />
+                    </div> :
+
                     <ul>
                         {/* Add a condition for if user is searching communities
                             then we will use communities state data here that will have been updated based on search
@@ -128,7 +135,7 @@ const CommunityHome = () => {
                                 {!loading && <div className='cmtsl-txt'>
                                     <span className='cmts-name'>{val.name}</span>
                                     <span className='cmts-niche'>{val.meta_data.niche}</span>
-                                    <span className='cmts-members'>{amountShort(val["numbers of members"]||1)||1} Member(s)</span>
+                                    <span className='cmts-members'>{amountShort((val["numbers of members"] - 0) + 1)||1} Member(s)</span>
                                 </div>}
                             </li>
                         ))}

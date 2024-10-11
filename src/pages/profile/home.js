@@ -46,7 +46,7 @@ const ProfileHomePage = () => {
         const res = await contentContractInstance.getContentList(0);
         const data = [];
         for(const response of Array.from(res).reverse()) {
-            // if(!inProductionContent(response)) continue;
+            if(!inProductionContent(response)) continue;
             const value = parseContentData(response);
             if(value.author === contract.address) {
                 const author = await userContractInstance.getUsername(value.author);
@@ -60,7 +60,7 @@ const ProfileHomePage = () => {
         const stk_data = [];
         for(const stakeId of Array.from(stakes).reverse()) {
             const stake_id = stakeId +'';
-            // if(stake_id < BAD_INDEX) continue;
+            if(stake_id < BAD_INDEX) continue;
             const resp = parseContentData(await contentContractInstance.getContent(stake_id-0));
             // resp.community_id
             const author = await userContractInstance.getUsername(resp.author);

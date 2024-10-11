@@ -40,30 +40,68 @@ export const getDate = (date, ethereum_type = false) => {
 };
 
 export const inProductionContent = (val) => {
-    const IN_PRODUCTION = true;
+    const IN_PRODUCTION = false;
     if(!IN_PRODUCTION && val.split(',')[0].split(':')[1] < BAD_INDEX) return false;
     else return true;
 };
+
+const days = [ 31,
+    ((new Date()).getFullYear() - 2024) % 4 === 0 ? 29 : 28,
+    31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+];
 
 export const formatDate = (date, ethereum_type = false) => {
     if(ethereum_type) date = (date + '000') - 0;
     date = new Date(date);
     const today = new Date();
-    if(today.getMonth() !== date.getMonth()) {
-        return String(date).slice(4, 15);
-    } else if(today.getDate() !== date.getDate()) {
-        const diff = today.getDate() - date.getDate();
-        return diff > 1 ? diff + ' days ago' : 'a day ago';
-    } else if(today.getHours() !== date.getHours()) {
-        const diff = today.getHours() - date.getHours();
-        return diff > 1 ? diff + ' hours ago' : 'an hour ago';
-    } else if(today.getMinutes() !== date.getMinutes()) {
-        const diff = today.getMinutes() - date.getMinutes();
+    const diff_secs = today.getTime() - date.getTime();
+    const ms = 1000;
+
+    if(diff_secs < 60 * ms) {
+        // secs diff is less than or 60 => not up to a min (60 secs)
+        const diff = (today.getSeconds() - date.getSeconds() + 60) % 60;
         return diff > 1 ? diff + ' mins ago' : 'a min ago';
-    } else {
-        const diff = today.getSeconds() - date.getSeconds();
-        return diff > 1 ? diff + ' secs ago' : 'a sec ago';
-    }
+    } else if(diff_secs < 60 * 60 * ms) {
+        // secs diff is less than or 60 * 60 => not up to a an hour (60 mins * 60 secs)
+        const diff = (today.getMinutes() - date.getMinutes() + 60) % 60;
+        return diff > 1 ? diff + ' mins ago' : 'a min ago';
+    } else if(diff_secs < 24 * 60 * 60 * ms) {
+        if(today.getDate() !== date.getDate()) return `Yesterday at ${String(date).slice(16, 21)}`;
+        else return `Today at ${String(date).slice(16, 21)}`; 
+    } else if(today.getMonth() === date.getMonth()) {
+        return `${String(date).slice(0, 3)} at ${String(date).slice(16, 21)}`;
+    } else if(today.getFullYear() === date.getFullYear()) {
+        return `${String(date).slice(4, 10)} at ${String(date).slice(16, 21)}`;
+    } else return `${String(date).slice(4, 15)} at ${String(date).slice(16, 21)}`;
+
+
+    // 
+        // secs diff is less than or 24 * 60 * 60 => not up to a a day (24 hrs * 60 mins * 60 secs)
+        // uncomment
+    //     const diff = (today.getHours() - date.getHours() + 24) % 24;
+    //     return diff > 1 ? diff + ' hours ago' : 'an hour ago';
+    // } else if(today.getMonth() === date.getMonth()) {
+
+        // comment
+        // by now we know difference is more than a day, so check is on months above
+        // if same month then just few days ago
+
+        // uncomment
+    //     const month_days = days[date.getMonth()];
+    //     const diff = (today.getDate() - date.getDate() + month_days) % month_days;
+    //     return diff > 1 ? diff + ' days ago' : 'a day ago';
+    // } else if(today.getFullYear() === date.getFullYear()) {
+
+        // comment
+        // by now we know difference is more than a month, so check is on year above
+        // if same year then just few months ago
+
+        // uncomment
+    //     const diff = (today.getMonth() - date.getMonth() + 12) % 12;
+    //     return diff > 1 ? diff + ' days ago' : 'a day ago';
+    // } else {
+    //     return String(date).slice(4, 15);
+    // }
 };
 
 export const generateHTMLString = (rawContent) => {
@@ -117,14 +155,16 @@ export const parseSubData = (data, targ) => {
     const spls = data.slice(1, -1).split('%x2');
     for(let spl of spls) {
         const [key, value] = spl.split('=');
+        if(!key) continue;
         if(key === targ) {
-            res[key] = value.slice(1, -1).split(',').map(x => x);
-        } else res[key] = value;
+            res[key] = value.slice(1, -1).split(',').map(x => x.replaceAll('%x3', '\n'));
+        } else res[key] = (value||'').replaceAll('%x3', '\n');
     }
     return res;
 };
 
 export const parseContentData = (data) => {
+    data = data.replaceAll('\n', '\%x3');
     data = JSON.parse(data);
     const { sub_data } = data;
     const newSubData = parseSubData(sub_data, 'tags');
@@ -132,6 +172,7 @@ export const parseContentData = (data) => {
 };
 
 export const parseCommunityData = (data) => {
+    data = data.replaceAll('\n', '\%x3');
     data = JSON.parse(data);
     const { meta_data } = data;
     const newMetaData = parseSubData(meta_data, 'topics');
