@@ -5,7 +5,7 @@ import SkeletonLoader from '../../component/skeleton';
 import CommunityLoading from './load';
 import { useDispatch, useSelector } from 'react-redux';
 import { Route, Routes, useNavigate, useParams } from 'react-router-dom';
-import { amountShort, formatDate, inProductionContent, parseCommunityData, parseContentData, setMessageFn } from '../../utils';
+import { amountShort, formatDate, inProductionContent, parseCommunityData, parseContentData, ProfileAvatar, setMessageFn } from '../../utils';
 import { 
     createCommunitiesContractInstance, createContentContractInstance, createUserContractInstance 
 } from '../../services/contracts_creators';
@@ -112,7 +112,10 @@ const CommunityPage = ({ toggleSidebar }) => {
             const contractInstance = await createCommunitiesContractInstance(contract.signer);
             await contractInstance.addUserToCommunity(id-0);
             setMessageFn(setMessage, { status: 'success', message: 'Successfully joined this community'});
-            setCommunity({ ...community, isMember: true });
+            setCommunity({ 
+                ...community, isMember: true,
+                'numbers of members': (community['numbers of members'] - 0) + 1 
+            });
             setJoinLoading(false);
         } catch (err) {
             setJoinLoading(false);
@@ -264,7 +267,7 @@ const CommunityPage = ({ toggleSidebar }) => {
                             <span>CREATOR</span>
                             <div>
                                 <div className='cma-li'>
-                                    <div className='cmal-img'></div>
+                                    <div className='cmal-img'><ProfileAvatar /></div>
                                     <span className='cmal-txt'>{community.creator}</span>
                                 </div>
                                 {/* {community.admins.map((val, idx) => (

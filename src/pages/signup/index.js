@@ -43,7 +43,7 @@ const Signup = () => {
     
     useEffect(() => {
         return () => {
-            if(profileFile.filename) URL.revokeObjectURL(profileFile);
+            if(profileFile.name) URL.revokeObjectURL(profileFile);
         }
     }, []);
 
@@ -72,6 +72,14 @@ const Signup = () => {
                 signer_val = signer;
                 setContractData({ signer, address: signerAddress });
             }
+            
+            const userContractInstance = await createUserContractInstance(signer_val);
+            const nameTaken = await userContractInstance.nameTaken(user.name);
+            if(nameTaken) {
+                setLoading(false);
+                setMessageFn(setMessageData, { status: 'error', message: 'Name is already taken. Choose another please.'});
+                return;
+            }
    
             if(!profileFile.name) {
                 const reply = await prompt('No picture selected. Proceed anyways. Y or N ?');
@@ -83,9 +91,9 @@ const Signup = () => {
                 formData.append('file', profileFile);
                 formData.append('filename', profileFile.name);
 
-                const { data } = await sendProfileFile(formData);
-                secure_url = data.data.secure_url;
-                public_id = data.data.public_id;
+                const res_data = await sendProfileFile(formData);
+                secure_url = res_data.data.data.secure_url;
+                public_id = res_data.data.data.public_id;
             }
 
             const data = encodeToByte(
@@ -95,14 +103,6 @@ const Signup = () => {
                     interests: user.interests 
                 })
             );
-            
-            const userContractInstance = await createUserContractInstance(signer_val);
-            const nameTaken = await userContractInstance.nameTaken(user.name);
-            if(nameTaken) {
-                setLoading(false);
-                setMessageFn(setMessageData, { status: 'error', message: 'Name is already taken. Choose another please.'});
-                return;
-            }
 
             const safeUserRegContractInstance = await createSafeUserRegistrationContractInstance(signer_val);
             await userContractInstance.registerUser(`${user.name}`, data);

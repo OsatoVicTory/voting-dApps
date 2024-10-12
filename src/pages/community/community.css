@@ -425,6 +425,12 @@
     border-radius: 50%;
     background-color: var(--bordergrey);
 }
+.cmal-img img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
 .cmal-txt {
     margin-left: 8px;
     margin-top: -4px;
